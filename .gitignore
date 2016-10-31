@@ -1,0 +1,9 @@
+# weird mac meta data
+*.DS_Store
+
+# Remove if we wanna use matlab files
+*.m
+*.mat
+
+# logs
+*log
