@@ -5,11 +5,14 @@ from collections import namedtuple
 
 # kinda like a c++ struct, just a simple tuple
 Scan = namedtuple("Scan", "x y r z")
+Segment = namedtuple("Segment", "startIdx endIdx")
 
 class Scans():
     def __init__(self):
         # array of 4 arrays of Scan objects
         self.laser = [[], [], [], []]
+        # array of 4 arrays of Segment objects
+        self.segments = [[], [], [], []]
 
     def readLidarData(self, filename):
         None
@@ -18,3 +21,8 @@ class Scans():
 scans = Scans()
 # index from 0
 scans.laser[1][9].z
+
+# example: create a segment representing the first 6
+# points of laser 4 and add into class
+seg = Segment(0 5)
+scans.segments[3].append(seg)
