@@ -17,4 +17,4 @@ class Scans():
 # example: the z value for the 10th scan from laser 2 is
 scans = Scans()
 # index from 0
-scans[1][9].z
+scans.laser[1][9].z
