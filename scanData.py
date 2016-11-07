@@ -1,11 +1,16 @@
 ## Samuel Rohrer (rohrer) and Ian Lin
 #  October 30, 2016
 #  read in LIDAR data and convert to nice struct
+import os
 from collections import namedtuple
 
 # kinda like a c++ struct, just a simple tuple
 Scan = namedtuple("Scan", "x y r z")
 Segment = namedtuple("Segment", "startIdx endIdx")
+
+# constants
+lidarDir = './ISRtest_frames'
+frameDir = './ISRtest_LIDARlog'
 
 class Scans():
     def __init__(self):
@@ -15,6 +20,9 @@ class Scans():
         self.segments = [[], [], [], []]
 
     def readLidarData(self, filename):
+        for filename in os.listdir(lidarDir):
+            with open(filename) as f:
+
         None
 
 # example: the z value for the 10th scan from laser 2 is
