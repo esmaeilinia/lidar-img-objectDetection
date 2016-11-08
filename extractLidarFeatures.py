@@ -5,6 +5,7 @@
 import math
 import numpy as np
 from scipy import optimize
+import glob
 
 # helper function to calc r
 def findR(x, y):
@@ -108,24 +109,41 @@ def feature15(x, y):
 	return np.std(diffDist)
 
 # called to call all of the other feature extraction functions
-def extractFeatures(x, y):
-	features = [feature1(x,y), feature2(x,y), feature3(x,y), feature4(x,y), 0,
-				feature6(x,y), 0, 0, feature9(x, y), 0, momentFeature(x, y, 2),
+def extractFeatures(filename):
+	# read in data
+	file = open(filename,"r")
+	x_data = file.readline()
+	y_data = file.readline()
+	x = x_data.split()
+	y = y_data.split()
+	# go elementwise and make into floats
+	for i in range(0, len(x)):
+		x[i] = float(x[i])
+		y[i] = float(y[i])
+	
+	features = [feature1(x,y), feature2(x,y), feature3(x,y), feature4(x,y),
+				feature6(x,y), feature9(x, y), momentFeature(x, y, 2),
 				momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
 				feature15(x,y) ]
 	return features
 
-# read in data
-file = open("../../Downloads/Laser_train/Train_pos_segments/15_55_14_0630_1.txt","r")
-x_data = file.readline()
-y_data = file.readline()
-x_data = x_data.split()
-y_data = y_data.split()
-# go elementwise and make into floats
-for i in range(0, len(x_data)):
-	x_data[i] = float(x_data[i])
-	y_data[i] = float(y_data[i])
+## create features.txt
+writefile = open('features.txt', 'w')
+posfilename = glob.glob("../../Downloads/Laser_train/Train_pos_segments/*.txt")
+for i in range (0, len(posfilename)):
+	features = extractFeatures(posfilename[i])
+	# write these to file
+	val = str(features)
+	writefile.write(val)
+	writefile.write("\n")
 
-# call feature extraction
-features = extractFeatures(x_data, y_data)
-print features 
+negfilename = glob.glob("../../Downloads/Laser_train/Train_neg_segments/*.txt")
+for i in range (0, len(negfilename)):
+	features = extractFeatures(negfilename[i])
+	# write these to file
+	val = str(features)
+	writefile.write(val)
+	writefile.write("\n")
+
+writefile.close()
+
