@@ -2,9 +2,11 @@ import sys
 from sklearn.tree import DecisionTreeClassifier
 
 # constants
-trainDataFilename = 'D-Laser_train_LIPD.txt'
+#trainDataFilename = 'D-Laser_train_LIPD.txt'
+trainDataFilename = 'trainFeatures.txt'
 trainClassesFilename = 'Laser_train_class.txt'
-testDataFilename = 'D-Laser_test_LIPD.txt'
+#testDataFilename = 'D-Laser_test_LIPD.txt'
+testDataFilename = 'testFeatures.txt'
 testClassesFilename = 'Laser_test_class.txt'
 
 class lidarFeatureClassifer:
