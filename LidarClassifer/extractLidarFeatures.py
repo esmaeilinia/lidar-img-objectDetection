@@ -128,8 +128,8 @@ def extractFeatures(filename):
 	return features
 
 ## create features.txt
-writefile = open('featuresTest.txt', 'w')
-posfilename = glob.glob("../../../../Desktop/Laser_test/Test_pos_segments/*.txt")
+writefile = open('testFeatures.txt', 'w')
+posfilename = glob.glob("../../../../../Desktop/Laser_test/Test_pos_segments/*.txt")
 for i in range (0, len(posfilename)):
 	features = extractFeatures(posfilename[i])
 	# write these to file
@@ -137,7 +137,7 @@ for i in range (0, len(posfilename)):
 	writefile.write(val)
 	writefile.write("\n")
 
-negfilename = glob.glob("../../../../Desktop/Laser_test/Test_neg_segments/*.txt")
+negfilename = glob.glob("../../../../../Desktop/Laser_test/Test_neg_segments/*.txt")
 for i in range (0, len(negfilename)):
 	features = extractFeatures(negfilename[i])
 	# write these to file
