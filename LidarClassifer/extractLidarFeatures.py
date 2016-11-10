@@ -8,65 +8,81 @@ from scipy import optimize
 import glob
 
 # helper function to calc r
+
+
 def findR(x, y):
 	r = [0] * len(x)
 	for i in range(0, len(r)):
 		r[i] = math.sqrt(x[i]**2 + y[i]**2)
-	return r	
+	return r
 
 # product of num points and minimum range measurement
+
+
 def feature1(x, y):
 	r = findR(x, y)
-	return len(r)*min(r)
+	return len(r) * min(r)
 
 # number of points in segment data
+
+
 def feature2(x, y):
 	return len(x)
 
 # normalized cartesian dimension (CHECK THIS)
+
+
 def feature3(x, y):
-	deltaX = x[0] - x[len(x)-1]
-	deltaY = y[0] - y[len(y)-1]
+	deltaX = x[0] - x[len(x) - 1]
+	deltaY = y[0] - y[len(y) - 1]
 	return math.sqrt(deltaX**2 + deltaY**2)
 
 # internal standard deviation
+
+
 def feature4(x, y):
 	r = findR(x, y)
-	sum = 0;
+	sum = 0
 	for i in range(0, len(r)):
-		sum += abs(r[i] - r[len(r)/2])
+		sum += abs(r[i] - r[len(r) / 2])
 	sum = sum / len(r)
-	return math.sqrt(sum)	
+	return math.sqrt(sum)
 
 # skip feature 5 for now (can't find method)
 
 # mean average deviation from the median
+
+
 def feature6(x, y):
 	r = findR(x, y)
 	medR = np.median(r)
 	sum = 0
 	for i in range(0, len(r)):
 		sum += abs(r[i] - medR)
-	return sum/len(r)
+	return sum / len(r)
 
 # skip feature 7,8 for now (can't find method)
 
 # feature 9: linearity
+
+
 def line(x, A, B):
-	return A*x + B
+	return A * x + B
+
+
 def feature9(x, y):
 	# find the least squares line
 	A, B = optimize.curve_fit(line, x, y)[0]
 	# compute a vector of distances squared
 	d = [0] * len(x)
 	for i in range(0, len(x)):
-		d[i] = (abs(-A * x[i] + 1*y[i] - B) / math.sqrt(A*A + B*B))
+		d[i] = (abs(-A * x[i] + 1 * y[i] - B) / math.sqrt(A * A + B * B))
 		d[i] = d[i] * d[i]
 	return sum(d) / len(d)
 
 # feature 10: circularity
 #def calcR(xcoord, ycoord, x, y):
-#	return math.sqrt((x - xcoord)**2 + (y - ycoord)**2) 
+#	return math.sqrt((x - xcoord)**2 + (y - ycoord)**2)
 
 #def circDist(est, x, y):
 #	R = [0] * len(x)
@@ -81,37 +97,47 @@ def feature9(x, y):
 
 # features 11,12,13 all are same
 # momentFeature calculates second,third,fourth central moment
+
+
 def momentFeature(x, y, ko):
 	r = findR(x, y)
-	meanR = sum(r)/len(r)
-	term = [0]*len(x)
-	for i in range (0, len(x)):
-		term[i] = ((r[i] - meanR)**ko)/len(x)
+	meanR = sum(r) / len(r)
+	term = [0] * len(x)
+	for i in range(0, len(x)):
+		term[i] = ((r[i] - meanR)**ko) / len(x)
 	return sum(term)
 
 # feature 14
+
+
 def calcDist(x, y):
 	return math.sqrt(x**2 + y**2)
 
+
 def feature14help(x, y):
 	diffDist = [0] * (len(x) - 1)
-	for i in range (0, len(x)-1):
-		diffDist[i] = abs(calcDist(x[i], y[i]) - calcDist(x[i+1], y[i+1]))
+	for i in range(0, len(x) - 1):
+		diffDist[i] = abs(calcDist(x[i], y[i]) - calcDist(x[i + 1], y[i + 1]))
 	return diffDist
+
 
 def feature14(x, y):
 	diffDist = feature14help(x, y)
 	return sum(diffDist)
 
 # feature 15
+
+
 def feature15(x, y):
 	diffDist = feature14help(x, y)
 	return np.std(diffDist)
 
 # called to call all of the other feature extraction functions
+
+
 def extractFeatures(filename):
 	# read in data
-	file = open(filename,"r")
+	file = open(filename, "r")
 	x_data = file.readline()
 	y_data = file.readline()
 	x = x_data.split()
@@ -120,25 +146,27 @@ def extractFeatures(filename):
 	for i in range(0, len(x)):
 		x[i] = float(x[i])
 		y[i] = float(y[i])
-	
-	features = [feature1(x,y), feature2(x,y), feature3(x,y), feature4(x,y),
-				feature6(x,y), feature9(x, y), momentFeature(x, y, 2),
-				momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
-				feature15(x,y) ]
+
+	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
+             feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
+             momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
+             feature15(x, y)]
 	return features
 
 ## create features.txt
 writefile = open('testFeatures.txt', 'w')
-posfilename = glob.glob("../../../../../Desktop/Laser_test/Test_pos_segments/*.txt")
-for i in range (0, len(posfilename)):
+posfilename = glob.glob(
+	"../../../../../Desktop/Laser_test/Test_pos_segments/*.txt")
+for i in range(0, len(posfilename)):
 	features = extractFeatures(posfilename[i])
 	# write these to file
 	val = " ".join([str(x) for x in features])
 	writefile.write(val)
 	writefile.write("\n")
 
-negfilename = glob.glob("../../../../../Desktop/Laser_test/Test_neg_segments/*.txt")
-for i in range (0, len(negfilename)):
+negfilename = glob.glob(
+	"../../../../../Desktop/Laser_test/Test_neg_segments/*.txt")
+for i in range(0, len(negfilename)):
 	features = extractFeatures(negfilename[i])
 	# write these to file
 	val = " ".join([str(x) for x in features])
@@ -146,4 +174,3 @@ for i in range (0, len(negfilename)):
 	writefile.write("\n")
 
 writefile.close()
-
