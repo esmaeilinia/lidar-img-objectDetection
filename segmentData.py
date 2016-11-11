@@ -27,7 +27,7 @@ class Scans():
         #    with open(filename) as f:
         # Lets do one file for now
         Tetha = np.array([-1.6, -0.8, 0.8, 1.6])*math.pi/180
-        with open('./ISRtest_LIDARlog/L_13_28_55_0375.txt') as f:
+        with open('../../Downloads/ISRtest_LIDARlog/L_13_28_55_0375.txt') as f:
             # read header and blank line after
             header_line = next(f)
             next(f)
@@ -57,12 +57,12 @@ def findCos3dPoint(x, xp1):
 for i in range(0, 4):
 	# iterate over length of laser scan
 	last_new_seg_idx = 0
-	for j in range(1, len(scans.laser[i])):
+	for j in range(0, len(scans.laser[i])-1):
 		cos_alpha = findCos3dPoint(scans.laser[i][j], scans.laser[i][j + 1])
 		r = scans.laser[i][j].r
 		rp1 = scans.laser[i][j + 1].r
-		dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp * cos_alpha)
-		c0 = 0
+		dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
+		c0 = 600
 		c1 = math.sqrt(2 * (1 - cos_alpha))
 		dist_thd = c0 + c1 * min(r, rp1)
 		# check if its a new segment
