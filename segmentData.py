@@ -4,6 +4,7 @@
 import os
 from collections import namedtuple
 import math
+import numpy as np
 
 # kinda like a c++ struct, just a simple tuple
 Scan = namedtuple("Scan", "x y r z")
@@ -13,7 +14,6 @@ Segment = namedtuple("Segment", "startIdx endIdx")
 lidarDir = './ISRtest_frames'
 frameDir = './ISRtest_LIDARlog'
 
-
 class Scans():
 
     def __init__(self):
@@ -22,24 +22,32 @@ class Scans():
         # array of 4 arrays of Segment objects
         self.segments = [[], [], [], []]
 
-    def readLidarData(self, filename):
-        for filename in os.listdir(lidarDir):
-            with open(filename) as f:
-    			None
+    def readLidarData(self):
+        #for filename in os.listdir(lidarDir):
+        #    with open(filename) as f:
+        # Lets do one file for now
+        Tetha = np.array([-1.6, -0.8, 0.8, 1.6])*math.pi/180
+        with open('./ISRtest_LIDARlog/L_13_28_55_0375.txt') as f:
+            # read header and blank line after
+            header_line = next(f)
+            next(f)
+            for line in f:
+                data = line.split()
+                laserNum = int(data[0])
+                x = float(data[3])
+                y = float(data[4])
+                r = math.sqrt(x*x+y*y)
+                z = r*math.tan(Tetha[laserNum])
+                scan = Scan(x, y, r, z)
+                self.laser[laserNum].append(scan)
 
 # example: the z value for the 10th scan from laser 2 is
 scans = Scans()
-# index from 0
-#scans.laser[1][9].z
-# example: create a segment representing the first 6
-# points of laser 4 and add into class
-seg = Segment(0, 5)
-scans.segments[3].append(seg)
-
+scans.readLidarData()
 
 def findCos3dPoint(x, xp1):
-	mag_x = sqrt(x.x**2 + x.y**2 + x.z**2)
-	mag_xp1 = sqrt(xp1.x**2 + xp1.y**2 + xp1.z**2)
+	mag_x = math.sqrt(x.x**2 + x.y**2 + x.z**2)
+	mag_xp1 = math.sqrt(xp1.x**2 + xp1.y**2 + xp1.z**2)
 	dot = x.x * xp1.x + x.y * xp1.y + x.z * xp1.z
 	return dot / (mag_x * mag_xp1)
 
@@ -53,9 +61,9 @@ for i in range(0, 4):
 		cos_alpha = findCos3dPoint(scans.laser[i][j], scans.laser[i][j + 1])
 		r = scans.laser[i][j].r
 		rp1 = scans.laser[i][j + 1].r
-		dist = sqrt(r**2 + rp1**2 - 2 * r * rp * cos_alpha)
+		dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp * cos_alpha)
 		c0 = 0
-		c1 = sqrt(2 * (1 - cos_alpha))
+		c1 = math.sqrt(2 * (1 - cos_alpha))
 		dist_thd = c0 + c1 * min(r, rp1)
 		# check if its a new segment
 		if (dist > dist_thd):
