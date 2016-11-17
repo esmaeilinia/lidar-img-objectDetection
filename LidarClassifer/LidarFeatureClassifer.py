@@ -47,6 +47,7 @@ yTest = lfc.readClassificationFile(testClassesFilename)
 dt = DecisionTreeClassifier()
 dt.fit(xTrain, yTrain)
 yPredict = dt.predict(xTest)
+print(yPredict)
 
 # check accuracy
-lfc.analyze(yPredict, yTest)
+#lfc.analyze(yPredict, yTest)

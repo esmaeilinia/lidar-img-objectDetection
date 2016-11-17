@@ -7,6 +7,16 @@ import numpy as np
 from scipy import optimize
 import glob
 
+# constants - update as needed
+writeTrainFilename = 'trainFeatures.txt'
+writeTestFilename = 'testFeatures.txt'
+trainPosGlobPath = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
+trainNegGlobPath = '../../../../../Desktop/442Data/Train_neg_segments/*.txt'
+testPosGlobPath = '../../../../../Desktop/442Data/Test_pos_segments/*.txt'
+testNegGlobPath = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
+
+actualDataGlobPath = '../segmentData/*.txt'
+
 # helper function to calc r
 
 
@@ -142,6 +152,9 @@ def extractFeatures(filename):
 	y_data = file.readline()
 	x = x_data.split()
 	y = y_data.split()
+	# if segment is too short, just return empty array
+	if len(x) < 3:
+		return []
 	# go elementwise and make into floats
 	for i in range(0, len(x)):
 		x[i] = float(x[i])
@@ -153,24 +166,33 @@ def extractFeatures(filename):
              feature15(x, y)]
 	return features
 
-## create features.txt
-writefile = open('testFeatures.txt', 'w')
-posfilename = glob.glob(
-	"../../../../../Desktop/Laser_test/Test_pos_segments/*.txt")
-for i in range(0, len(posfilename)):
-	features = extractFeatures(posfilename[i])
-	# write these to file
-	val = " ".join([str(x) for x in features])
-	writefile.write(val)
-	writefile.write("\n")
+# write features extracted from files in a folder path
 
-negfilename = glob.glob(
-	"../../../../../Desktop/Laser_test/Test_neg_segments/*.txt")
-for i in range(0, len(negfilename)):
-	features = extractFeatures(negfilename[i])
-	# write these to file
-	val = " ".join([str(x) for x in features])
-	writefile.write(val)
-	writefile.write("\n")
 
-writefile.close()
+def writeFeaturesToFile(posGlobPath, negGlobPath, writeFilename):
+	writefile = open(writeFilename, 'w')
+	posfilename = glob.glob(posGlobPath)
+	for i in range(0, len(posfilename)):
+		features = extractFeatures(posfilename[i])
+		if len(features) > 0:
+			# write these to file
+			val = " ".join([str(x) for x in features])
+			writefile.write(val)
+			writefile.write("\n")
+
+	if posGlobPath != negGlobPath:
+		negfilename = glob.glob(negGlobPath)
+		for i in range(0, len(negfilename)):
+			features = extractFeatures(negfilename[i])
+			# write these to file
+			val = " ".join([str(x) for x in features])
+			writefile.write(val)
+			writefile.write("\n")
+
+	writefile.close()
+
+# write both train and test features from segmented data
+writeFeaturesToFile(trainPosGlobPath, trainNegGlobPath, writeTrainFilename)
+#writeFeaturesToFile(testPosGlobPath, testNegGlobPath, writeTestFilename)
+# TODO: this and the function is hacky, we should connect these various methods better
+writeFeaturesToFile(actualDataGlobPath, actualDataGlobPath, writeTestFilename)

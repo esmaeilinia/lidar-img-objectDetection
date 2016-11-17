@@ -13,6 +13,8 @@ Segment = namedtuple("Segment", "startIdx endIdx")
 # constants
 lidarDir = './ISRtest_frames'
 frameDir = './ISRtest_LIDARlog'
+lidarLogNoHuman = './ISRtest_LIDARlog/L_13_28_55_0375.txt'
+lidarLogWithHuman = './ISRtest_LIDARlog/L_13_29_38_0735.txt'
 
 class Scans():
 
@@ -27,7 +29,7 @@ class Scans():
         #    with open(filename) as f:
         # Lets do one file for now
         Tetha = np.array([-1.6, -0.8, 0.8, 1.6])*math.pi/180
-        with open('../../Downloads/ISRtest_LIDARlog/L_13_28_55_0375.txt') as f:
+        with open(lidarLogWithHuman) as f:
             # read header and blank line after
             header_line = next(f)
             next(f)
