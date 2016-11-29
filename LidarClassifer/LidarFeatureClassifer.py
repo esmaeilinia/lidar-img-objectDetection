@@ -37,17 +37,18 @@ class lidarFeatureClassifer:
                 correctLabel += 1
         print(str(correctLabel/float(len(yPredict))*100) + '% accuracy')
 
-lfc = lidarFeatureClassifer()
-xTrain = lfc.readDataFile(trainDataFilename)
-yTrain = lfc.readClassificationFile(trainClassesFilename)
-xTest = lfc.readDataFile(testDataFilename)
-yTest = lfc.readClassificationFile(testClassesFilename)
+if __name__ == "__main__":
+    lfc = lidarFeatureClassifer()
+    xTrain = lfc.readDataFile(trainDataFilename)
+    yTrain = lfc.readClassificationFile(trainClassesFilename)
+    xTest = lfc.readDataFile(testDataFilename)
+    yTest = lfc.readClassificationFile(testClassesFilename)
 
-# train
-dt = DecisionTreeClassifier()
-dt.fit(xTrain, yTrain)
-yPredict = dt.predict(xTest)
-print(yPredict)
+    # train
+    dt = DecisionTreeClassifier()
+    dt.fit(xTrain, yTrain)
+    yPredict = dt.predict(xTest)
+    print(yPredict)
 
-# check accuracy
-#lfc.analyze(yPredict, yTest)
+    # check accuracy
+    lfc.analyze(yPredict, yTest)

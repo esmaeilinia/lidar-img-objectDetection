@@ -1,70 +1,39 @@
 ## Samuel Rohrer (rohrer) and Ian Lin
 #  November 6, 2016
 #  read in LIDAR segment data and return feature vector
-
 import math
 import numpy as np
 from scipy import optimize
 import glob
-
-# constants - update as needed
-writeTrainFilename = 'trainFeatures.txt'
-writeTestFilename = 'testFeatures.txt'
-trainPosGlobPath = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
-trainNegGlobPath = '../../../../../Desktop/442Data/Train_neg_segments/*.txt'
-testPosGlobPath = '../../../../../Desktop/442Data/Test_pos_segments/*.txt'
-testNegGlobPath = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
-
-actualDataGlobPath = '../segmentData/*.txt'
-
-# write features extracted from files in a folder path
-def writeFeaturesToFile(posGlobPath, negGlobPath, writeFilename):
-	writefile = open(writeFilename, 'w')
-	posfilename = glob.glob(posGlobPath)
-	for i in range(0, len(posfilename)):
-		features = extractFeatures(posfilename[i])
-		if len(features) > 0:
-			# write these to file
-			val = " ".join([str(x) for x in features])
-			writefile.write(val)
-			writefile.write("\n")
-
-	if posGlobPath != negGlobPath:
-		negfilename = glob.glob(negGlobPath)
-		for i in range(0, len(negfilename)):
-			features = extractFeatures(negfilename[i])
-			# write these to file
-			val = " ".join([str(x) for x in features])
-			writefile.write(val)
-			writefile.write("\n")
-	writefile.close()
+from utility import Scan
 
 # called to call all of the other feature extraction functions
 # TODO: extractFeatures(segment) output list of features for the input segment
+# I'll pass segment to you as a list of Scans
 def extractFeatures(segment):
 	print("extracting features")
 	return []
 
-# def extractFeatures(filename):
-# 	# read in data
-# 	file = open(filename, "r")
-# 	x_data = file.readline()
-# 	y_data = file.readline()
-# 	x = x_data.split()
-# 	y = y_data.split()
-# 	# if segment is too short, just return empty array
-# 	if len(x) < 3:
-# 		return []
-# 	# go elementwise and make into floats
-# 	for i in range(0, len(x)):
-# 		x[i] = float(x[i])
-# 		y[i] = float(y[i])
-#
-# 	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
-#              feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
-#              momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
-#              feature15(x, y)]
-# 	return features
+def convertThisFunctionToExtractFeatures(filename):
+	# read in data
+	file = open(filename, "r")
+	x_data = file.readline()
+	y_data = file.readline()
+	x = x_data.split()
+	y = y_data.split()
+	# if segment is too short, just return empty array
+	if len(x) < 3:
+		return []
+	# go elementwise and make into floats
+	for i in range(0, len(x)):
+		x[i] = float(x[i])
+		y[i] = float(y[i])
+
+	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
+             feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
+             momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
+             feature15(x, y)]
+	return features
 
 # helper function to calc r
 def findR(x, y):
@@ -138,7 +107,6 @@ def feature9(x, y):
 # features 11,12,13 all are same
 # momentFeature calculates second,third,fourth central moment
 
-
 def momentFeature(x, y, ko):
 	r = findR(x, y)
 	meanR = sum(r) / len(r)
@@ -165,9 +133,3 @@ def feature14(x, y):
 def feature15(x, y):
 	diffDist = feature14help(x, y)
 	return np.std(diffDist)
-
-if __name__ == "__main__":
-	# write both train and test features from segmented data
-	# writeFeaturesToFile(trainPosGlobPath, trainNegGlobPath, writeTrainFilename)
-	#writeFeaturesToFile(testPosGlobPath, testNegGlobPath, writeTestFilename)
-	None

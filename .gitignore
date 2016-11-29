@@ -13,3 +13,7 @@
 
 # image folders
 *frames
+
+*.pyc
+*.pdf
+*.txt
