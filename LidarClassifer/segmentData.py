@@ -4,58 +4,30 @@
 import math
 from utility import Scan, Segment
 
-# TODO: implement
-# extractSegments(laser) where laser is a list of Scans
-# outputs a list of Segments
-# note that the input doesn't have lasernum anymore, the driver will handle it
-def extractSegments(laser):
-    print("extracting segments")
-    return []
-
-def convertThisFunctionToExtractSegments():
+def makeSegments(laser):
     # start making segmentation data
-    # iterate over the laser
-    for i in range(0, 4):
-    	# iterate over length of laser scan
-    	last_new_seg_idx = 0
-    	for j in range(0, len(scans.laser[i])-1):
-    		cos_alpha = findCos3dPoint(scans.laser[i][j], scans.laser[i][j + 1])
-    		r = scans.laser[i][j].r
-    		rp1 = scans.laser[i][j + 1].r
-    		dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
-    		c0 = 600
-    		c1 = math.sqrt(2 * (1 - cos_alpha))
-    		dist_thd = c0 + c1 * min(r, rp1)
-    		# check if its a new segment
-    		if (dist > dist_thd):
-    			seg = Segment(last_new_seg_idx, j)
-    			scans.segments[i].append(seg)
-    			last_new_seg_idx = j
+	# iterate over length of laser scan
+	last_new_seg_idx = 0
+	for j in range(0, len(laser[i])-1):
+		cos_alpha = findCos3dPoint(laser[j], laser[j + 1])
+		r = laser[j].r
+		rp1 = laser[j + 1].r
+		dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
+		c0 = 600
+		c1 = math.sqrt(2 * (1 - cos_alpha))
+		dist_thd = c0 + c1 * min(r, rp1)
+		# check if its a new segment
+		if (dist > dist_thd):
+			seg = Segment(last_new_seg_idx, j)
+			segments.append(seg)
+			last_new_seg_idx = j
 
-    # write each segment to a new file
-    # iterate over each laser
-    for l in range(0, 4):
-    	for i in range(0, len(scans.segments[l])):
-    		# TODO: figure out how to write to many different files
-    		file = open('segmentData/laser#%i_segment#%i.txt' % (l, i), 'w')
-    		# go through segments and print coordinates
-    		lenSegment = scans.segments[l][i].endIdx - scans.segments[l][i].startIdx
-    		# print x
-    		for x in range(0, lenSegment):
-    			val = scans.laser[l][x].x
-    			file.write(str(val) + " ")
-    		file.write("\n")
-    		# print y
-    		for y in range(0, lenSegment):
-    			val = scans.laser[l][y].y
-    			file.write(str(val) + " ")
-    		file.write("\n")
-    		# print z
-    		for z in range(0, lenSegment):
-    			val = scans.laser[l][z].z
-    			file.write(str(val) + " ")
-    		file.write("\n")
-    		file.close()
+        # return the list of segments
+        return segments      
+
+def segmentData(laser):
+    return makeSegments(laser)
+
 
 # internal helper function
 def findCos3dPoint(x, xp1):

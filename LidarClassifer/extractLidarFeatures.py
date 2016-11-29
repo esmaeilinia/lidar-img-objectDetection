@@ -10,17 +10,11 @@ from utility import Scan
 # called to call all of the other feature extraction functions
 # TODO: extractFeatures(segment) output list of features for the input segment
 # I'll pass segment to you as a list of Scans
+# segment is not a segment object but rather a list of the points
+#   x, y in each of the segments
 def extractFeatures(segment):
-	print("extracting features")
-	return []
-
-def convertThisFunctionToExtractFeatures(filename):
-	# read in data
-	file = open(filename, "r")
-	x_data = file.readline()
-	y_data = file.readline()
-	x = x_data.split()
-	y = y_data.split()
+	x = [scan.x for scan in segment]
+	y = [scan.y for scan in segment]
 	# if segment is too short, just return empty array
 	if len(x) < 3:
 		return []
@@ -88,21 +82,6 @@ def feature9(x, y):
 		d[i] = (abs(-A * x[i] + 1 * y[i] - B) / math.sqrt(A * A + B * B))
 		d[i] = d[i] * d[i]
 	return sum(d) / len(d)
-
-# feature 10: circularity
-#def calcR(xcoord, ycoord, x, y):
-#	return math.sqrt((x - xcoord)**2 + (y - ycoord)**2)
-
-#def circDist(est, x, y):
-#	R = [0] * len(x)
-#	for i in range(0, len(x)):
-#		R[i] = calcR(est[0], est[1], x[i], y[i])
-#	return sum(R)/len(R)
-
-#def feature10(x, y):
-#	center_est = np.array([sum(x)/len(x), sum(y)/len(y)])
-#	center_2, ier = optimize.leastsq(circDist, center_est, args=(x, y))
-#	print center_2, ier
 
 # features 11,12,13 all are same
 # momentFeature calculates second,third,fourth central moment
