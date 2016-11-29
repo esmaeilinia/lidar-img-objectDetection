@@ -41,26 +41,30 @@ def writeFeaturesToFile(posGlobPath, negGlobPath, writeFilename):
 
 # called to call all of the other feature extraction functions
 # TODO: extractFeatures(segment) output list of features for the input segment
-def extractFeatures(filename):
-	# read in data
-	file = open(filename, "r")
-	x_data = file.readline()
-	y_data = file.readline()
-	x = x_data.split()
-	y = y_data.split()
-	# if segment is too short, just return empty array
-	if len(x) < 3:
-		return []
-	# go elementwise and make into floats
-	for i in range(0, len(x)):
-		x[i] = float(x[i])
-		y[i] = float(y[i])
+def extractFeatures(segment):
+	print("extracting features")
+	return []
 
-	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
-             feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
-             momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
-             feature15(x, y)]
-	return features
+# def extractFeatures(filename):
+# 	# read in data
+# 	file = open(filename, "r")
+# 	x_data = file.readline()
+# 	y_data = file.readline()
+# 	x = x_data.split()
+# 	y = y_data.split()
+# 	# if segment is too short, just return empty array
+# 	if len(x) < 3:
+# 		return []
+# 	# go elementwise and make into floats
+# 	for i in range(0, len(x)):
+# 		x[i] = float(x[i])
+# 		y[i] = float(y[i])
+#
+# 	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
+#              feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
+#              momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
+#              feature15(x, y)]
+# 	return features
 
 # helper function to calc r
 def findR(x, y):
