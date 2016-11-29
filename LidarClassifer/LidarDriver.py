@@ -1,12 +1,17 @@
 from segmentData import extractSegments
 from extractLidarFeatures import extractFeatures
-from LidarFeatureClassifer import lidarFeatureClassifer
 from utility import Scan, Segment
 import os
 import glob
+from sklearn.tree import DecisionTreeClassifier
 
 # constants
 ianTrainPos = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
+ianTrainNeg = '../../../../../Desktop/442Data/Train_neg_segments/*.txt'
+ianTestPos = '../../../../../Desktop/442Data/Test_pos_segments/*.txt'
+ianTestNeg = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
+ianTrainClasses = 'Laser_train_class.txt'
+ianTestClasses = 'Laser_test_class.txt'
 
 # steps:
 # 1. train
@@ -14,8 +19,10 @@ ianTrainPos = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
 class LidarDriver():
     def __init__(self):
         self.trainFeatures = []
+        self.testFeatures = []
         self.trainClasses = []
-        self.lfc = lidarFeatureClassifer()
+        self.testClasses = []
+        self.lfc = DecisionTreeClassifier()
         # array of 4 arrays of Scan objects
         self.laser = [[], [], [], []]
         # array of 4 arrays of Segment objects
@@ -27,11 +34,36 @@ class LidarDriver():
     # 4. fit self.lfc with self.trainFeatures and self.trainClasses
     def train(self):
         self.readTrainingSegments()
+        with open(ianTrainClasses) as f:
+            for line in f.readlines():
+                self.trainClasses.append(int(line))
+        self.lfc.fit(self.trainFeatures, self.trainClasses)
 
     def readTrainingSegments(self):
-        posTrainSegments = ''
-        for filename in glob.glob(posTrainSegments):
-            None
+        self.readGlob(ianTrainPos, 1)
+        self.readGlob(ianTrainNeg, 1)
+
+    def readGlob(self, globPath, train):
+        for filename in glob.glob(globPath):
+            with open(filename) as f:
+                X = map(float, f.readline().split())
+                Y = map(float, f.readline().split())
+            scans = []
+            for x,y in zip(X, Y):
+                # r and z don't matter for feature extractions
+                scans.append(Scan(x, y, 0, 0))
+            if train:
+                self.trainFeatures.append(extractFeatures(scans))
+            else:
+                self.testFeatures.append(extractFeatures(scans))
+
+    def testExtractFeatures(self):
+        self.readGlob(ianTestPos, 0)
+        self.readGlob(ianTestNeg, 0)
+        with open(ianTestClasses) as f:
+            for line in f.readlines():
+                self.testClasses.append(int(line))
+        print(self.lfc.score(self.testFeatures, self.testClasses))
 
     # for each image in ISRtest_frames with its corresponding lidar scan file from ISRtest_LIDARlog
     # 1. open and display the image
@@ -64,34 +96,5 @@ class LidarDriver():
 if __name__ == "__main__":
     ld = LidarDriver()
     ld.train()
-
-# # constants - update as needed
-# writeTrainFilename = 'trainFeatures.txt'
-# writeTestFilename = 'testFeatures.txt'
-# trainPosGlobPath = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
-# trainNegGlobPath = '../../../../../Desktop/442Data/Train_neg_segments/*.txt'
-# testPosGlobPath = '../../../../../Desktop/442Data/Test_pos_segments/*.txt'
-# testNegGlobPath = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
-#
-# actualDataGlobPath = '../segmentData/*.txt'
-# # write features extracted from files in a folder path
-# def writeFeaturesToFile(posGlobPath, negGlobPath, writeFilename):
-# 	writefile = open(writeFilename, 'w')
-# 	posfilename = glob.glob(posGlobPath)
-# 	for i in range(0, len(posfilename)):
-# 		features = extractFeatures(posfilename[i])
-# 		if len(features) > 0:
-# 			# write these to file
-# 			val = " ".join([str(x) for x in features])
-# 			writefile.write(val)
-# 			writefile.write("\n")
-#
-# 	if posGlobPath != negGlobPath:
-# 		negfilename = glob.glob(negGlobPath)
-# 		for i in range(0, len(negfilename)):
-# 			features = extractFeatures(negfilename[i])
-# 			# write these to file
-# 			val = " ".join([str(x) for x in features])
-# 			writefile.write(val)
-# 			writefile.write("\n")
-# 	writefile.close()
+    ld.testExtractFeatures()
+    ld.test()
