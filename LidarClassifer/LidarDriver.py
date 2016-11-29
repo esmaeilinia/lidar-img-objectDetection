@@ -2,6 +2,11 @@ from segmentData import extractSegments
 from extractLidarFeatures import extractFeatures
 from LidarFeatureClassifer import lidarFeatureClassifer
 from utility import Scan, Segment
+import os
+import glob
+
+# constants
+ianTrainPos = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
 
 # steps:
 # 1. train
@@ -21,7 +26,12 @@ class LidarDriver():
     # 3. read Laser_train_class into self.trainClasses
     # 4. fit self.lfc with self.trainFeatures and self.trainClasses
     def train(self):
-        None
+        self.readTrainingSegments()
+
+    def readTrainingSegments(self):
+        posTrainSegments = ''
+        for filename in glob.glob(posTrainSegments):
+            None
 
     # for each image in ISRtest_frames with its corresponding lidar scan file from ISRtest_LIDARlog
     # 1. open and display the image

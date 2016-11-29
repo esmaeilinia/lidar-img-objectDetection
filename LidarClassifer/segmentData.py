@@ -4,30 +4,25 @@
 import math
 from utility import Scan, Segment
 
-def makeSegments(laser):
+def extractSegments(laser):
     # start making segmentation data
-	# iterate over length of laser scan
-	last_new_seg_idx = 0
-	for j in range(0, len(laser[i])-1):
-		cos_alpha = findCos3dPoint(laser[j], laser[j + 1])
-		r = laser[j].r
-		rp1 = laser[j + 1].r
-		dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
-		c0 = 600
-		c1 = math.sqrt(2 * (1 - cos_alpha))
-		dist_thd = c0 + c1 * min(r, rp1)
-		# check if its a new segment
-		if (dist > dist_thd):
-			seg = Segment(last_new_seg_idx, j)
-			segments.append(seg)
-			last_new_seg_idx = j
-
-        # return the list of segments
-        return segments      
-
-def segmentData(laser):
-    return makeSegments(laser)
-
+    # iterate over length of laser scan
+    last_new_seg_idx = 0
+    for j in range(0, len(laser[i])-1):
+        cos_alpha = findCos3dPoint(laser[j], laser[j + 1])
+        r = laser[j].r
+        rp1 = laser[j + 1].r
+        dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
+        c0 = 600
+        c1 = math.sqrt(2 * (1 - cos_alpha))
+        dist_thd = c0 + c1 * min(r, rp1)
+        # check if its a new segment
+        if (dist > dist_thd):
+            seg = Segment(last_new_seg_idx, j)
+            segments.append(seg)
+            last_new_seg_idx = j
+    # return the list of segments
+    return segments
 
 # internal helper function
 def findCos3dPoint(x, xp1):

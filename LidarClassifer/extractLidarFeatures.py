@@ -4,12 +4,9 @@
 import math
 import numpy as np
 from scipy import optimize
-import glob
 from utility import Scan
 
 # called to call all of the other feature extraction functions
-# TODO: extractFeatures(segment) output list of features for the input segment
-# I'll pass segment to you as a list of Scans
 # segment is not a segment object but rather a list of the points
 #   x, y in each of the segments
 def extractFeatures(segment):
