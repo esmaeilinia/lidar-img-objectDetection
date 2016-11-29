@@ -17,9 +17,52 @@ testNegGlobPath = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
 
 actualDataGlobPath = '../segmentData/*.txt'
 
+# write features extracted from files in a folder path
+def writeFeaturesToFile(posGlobPath, negGlobPath, writeFilename):
+	writefile = open(writeFilename, 'w')
+	posfilename = glob.glob(posGlobPath)
+	for i in range(0, len(posfilename)):
+		features = extractFeatures(posfilename[i])
+		if len(features) > 0:
+			# write these to file
+			val = " ".join([str(x) for x in features])
+			writefile.write(val)
+			writefile.write("\n")
+
+	if posGlobPath != negGlobPath:
+		negfilename = glob.glob(negGlobPath)
+		for i in range(0, len(negfilename)):
+			features = extractFeatures(negfilename[i])
+			# write these to file
+			val = " ".join([str(x) for x in features])
+			writefile.write(val)
+			writefile.write("\n")
+	writefile.close()
+
+# called to call all of the other feature extraction functions
+# TODO: extractFeatures(segment) output list of features for the input segment
+def extractFeatures(filename):
+	# read in data
+	file = open(filename, "r")
+	x_data = file.readline()
+	y_data = file.readline()
+	x = x_data.split()
+	y = y_data.split()
+	# if segment is too short, just return empty array
+	if len(x) < 3:
+		return []
+	# go elementwise and make into floats
+	for i in range(0, len(x)):
+		x[i] = float(x[i])
+		y[i] = float(y[i])
+
+	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
+             feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
+             momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
+             feature15(x, y)]
+	return features
+
 # helper function to calc r
-
-
 def findR(x, y):
 	r = [0] * len(x)
 	for i in range(0, len(r)):
@@ -27,29 +70,21 @@ def findR(x, y):
 	return r
 
 # product of num points and minimum range measurement
-
-
 def feature1(x, y):
 	r = findR(x, y)
 	return len(r) * min(r)
 
 # number of points in segment data
-
-
 def feature2(x, y):
 	return len(x)
 
 # normalized cartesian dimension (CHECK THIS)
-
-
 def feature3(x, y):
 	deltaX = x[0] - x[len(x) - 1]
 	deltaY = y[0] - y[len(y) - 1]
 	return math.sqrt(deltaX**2 + deltaY**2)
 
 # internal standard deviation
-
-
 def feature4(x, y):
 	r = findR(x, y)
 	sum = 0
@@ -58,11 +93,7 @@ def feature4(x, y):
 	sum = sum / len(r)
 	return math.sqrt(sum)
 
-# skip feature 5 for now (can't find method)
-
 # mean average deviation from the median
-
-
 def feature6(x, y):
 	r = findR(x, y)
 	medR = np.median(r)
@@ -71,14 +102,9 @@ def feature6(x, y):
 		sum += abs(r[i] - medR)
 	return sum / len(r)
 
-# skip feature 7,8 for now (can't find method)
-
 # feature 9: linearity
-
-
 def line(x, A, B):
 	return A * x + B
-
 
 def feature9(x, y):
 	# find the least squares line
@@ -118,11 +144,8 @@ def momentFeature(x, y, ko):
 	return sum(term)
 
 # feature 14
-
-
 def calcDist(x, y):
 	return math.sqrt(x**2 + y**2)
-
 
 def feature14help(x, y):
 	diffDist = [0] * (len(x) - 1)
@@ -130,69 +153,17 @@ def feature14help(x, y):
 		diffDist[i] = abs(calcDist(x[i], y[i]) - calcDist(x[i + 1], y[i + 1]))
 	return diffDist
 
-
 def feature14(x, y):
 	diffDist = feature14help(x, y)
 	return sum(diffDist)
 
 # feature 15
-
-
 def feature15(x, y):
 	diffDist = feature14help(x, y)
 	return np.std(diffDist)
 
-# called to call all of the other feature extraction functions
-
-
-def extractFeatures(filename):
-	# read in data
-	file = open(filename, "r")
-	x_data = file.readline()
-	y_data = file.readline()
-	x = x_data.split()
-	y = y_data.split()
-	# if segment is too short, just return empty array
-	if len(x) < 3:
-		return []
-	# go elementwise and make into floats
-	for i in range(0, len(x)):
-		x[i] = float(x[i])
-		y[i] = float(y[i])
-
-	features = [feature1(x, y), feature2(x, y), feature3(x, y), feature4(x, y),
-             feature6(x, y), feature9(x, y), momentFeature(x, y, 2),
-             momentFeature(x, y, 3), momentFeature(x, y, 4), feature14(x, y),
-             feature15(x, y)]
-	return features
-
-# write features extracted from files in a folder path
-
-
-def writeFeaturesToFile(posGlobPath, negGlobPath, writeFilename):
-	writefile = open(writeFilename, 'w')
-	posfilename = glob.glob(posGlobPath)
-	for i in range(0, len(posfilename)):
-		features = extractFeatures(posfilename[i])
-		if len(features) > 0:
-			# write these to file
-			val = " ".join([str(x) for x in features])
-			writefile.write(val)
-			writefile.write("\n")
-
-	if posGlobPath != negGlobPath:
-		negfilename = glob.glob(negGlobPath)
-		for i in range(0, len(negfilename)):
-			features = extractFeatures(negfilename[i])
-			# write these to file
-			val = " ".join([str(x) for x in features])
-			writefile.write(val)
-			writefile.write("\n")
-
-	writefile.close()
-
-# write both train and test features from segmented data
-writeFeaturesToFile(trainPosGlobPath, trainNegGlobPath, writeTrainFilename)
-#writeFeaturesToFile(testPosGlobPath, testNegGlobPath, writeTestFilename)
-# TODO: this and the function is hacky, we should connect these various methods better
-writeFeaturesToFile(actualDataGlobPath, actualDataGlobPath, writeTestFilename)
+if __name__ == "__main__":
+	# write both train and test features from segmented data
+	# writeFeaturesToFile(trainPosGlobPath, trainNegGlobPath, writeTrainFilename)
+	#writeFeaturesToFile(testPosGlobPath, testNegGlobPath, writeTestFilename)
+	None
