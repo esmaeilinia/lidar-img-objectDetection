@@ -7,14 +7,21 @@ from utility import Scan, Segment
 def extractSegments(laser):
     # start making segmentation data
     # iterate over length of laser scan
+    segments = []
     last_new_seg_idx = 0
-    for j in range(0, len(laser[i])-1):
+    for j in range(0, len(laser)-1):
         cos_alpha = findCos3dPoint(laser[j], laser[j + 1])
         r = laser[j].r
         rp1 = laser[j + 1].r
         dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
         c0 = 600
-        c1 = math.sqrt(2 * (1 - cos_alpha))
+        # TODO: CHECK WITH SAM, is this okay?
+        # throws an error if cos_alpha is close to one but not one
+        # probably underflow
+        if cos_alpha > 0.999 and cos_alpha < 1.001:
+            c1 = 0
+        else:
+            c1 = math.sqrt(2 * (1 - cos_alpha))
         dist_thd = c0 + c1 * min(r, rp1)
         # check if its a new segment
         if (dist > dist_thd):
