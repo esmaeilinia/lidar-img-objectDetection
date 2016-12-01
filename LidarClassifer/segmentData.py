@@ -1,6 +1,6 @@
 ## Samuel Rohrer (rohrer) and Ian Lin
 #  October 30, 2016
-#  read in LIDAR data and convert to nice struct
+#  code to create segments from raw LIDAR scans
 import math
 from utility import Scan, Segment
 
