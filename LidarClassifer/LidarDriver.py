@@ -141,6 +141,32 @@ class LidarDriver():
                 scan = Scan(x, y, r, z)
                 self.lasers[laserNum].append(scan)
 
+    def showPoints(self):
+        fc = np.array([ 622.06, 622.56])
+        cc = np.array([ 366.08, 258.92])
+        K =  np.array([ [fc[0], -0.05, cc[0]], [ 0, fc[1], cc[1]], [ 0,0,1]])
+        Delta = np.array([[-18.592], [-259.84], [-8.2989]])
+        Phi = np.array([[0.999, 0.05, 0.0001], [-0.005, 0.998, 0.001],
+                 [0.008, -0.018, 0.984]])
+        L = np.array([ [Phi[0][0], Phi[0][1], Phi[0][2], Delta[0]], 
+            [ Phi[2][0], Phi[2][1], Phi[2][2], Delta[2]], 
+            [ Phi[1][0], Phi[1][1], Phi[1][2], Delta[1]], 
+            [ 0, 0, 0, 1]])
+        # iterate over the lasers
+        for laserNum in range(len(self.segments)):
+            # iterate over the segments in each laser
+            for pointNum in range(len(self.lasers[laserNum])):
+                point = np.array([[-10*self.lasers[laserNum][pointNum].y],
+                    [10*self.lasers[laserNum][pointNum].x], 
+                    [-10*self.lasers[laserNum][pointNum].z], [1]])
+                x_s = np.dot(np.eye(3,4), (np.dot(np.linalg.pinv(L), point)))
+                x_s = x_s / x_s[2]
+                x_s = np.dot(K, x_s)
+                # exclude points outside the image
+                if x_s[0] > 0 and x_s[0] < 640 and x_s[1] > 0 and x_s[1] < 480:    
+                    plt.plot((x_s[0]), (x_s[1]), 'b+')
+
+
     def showSegments(self):
         # plt.plot((x1, x2), (y1, y2), 'k-')
         fc = np.array([ 622.06, 622.56])
@@ -164,8 +190,8 @@ class LidarDriver():
                     [10*self.lasers[laserNum][start].x], 
                     [-10*self.lasers[laserNum][start].z], [1]])
                 end_point = np.array([[-10*self.lasers[laserNum][end].y],
-                    [10*self.lasers[laserNum][end].x], 
-                    [-10*self.lasers[laserNum][end].z], [1]])
+                   [10*self.lasers[laserNum][end].x], 
+                   [-10*self.lasers[laserNum][end].z], [1]])
                 x_s = np.dot(np.eye(3,4), (np.dot(np.linalg.pinv(L), start_point)))
                 x_e = np.dot(np.eye(3,4), (np.dot(np.linalg.pinv(L), end_point)))
                 x_s = x_s / x_s[2]
@@ -173,13 +199,16 @@ class LidarDriver():
                 x_s = np.dot(K, x_s)
                 x_e = np.dot(K, x_e)
                 # plot them
-                plt.plot((x_s[1], x_e[1]), (x_s[2], x_e[2]), 'r-')
+                # make sure the segment is in the range of the image
+                if x_s[0] > 0 and x_e[0] < 640 and x_s[1] > 0 and x_e[1] < 480:    
+                    plt.plot((x_s[0], x_e[0]), (x_s[1], x_e[1]), 'r-')
 
     def showImage(self, filename):
         plt.close()
         plt.figure()
         img = mpimg.imread(filename)
         plt.imshow(img)
+        self.showPoints()
         self.showSegments()
         plt.show()
 
