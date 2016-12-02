@@ -13,7 +13,11 @@ def extractSegments(laser):
         cos_alpha = findCos3dPoint(laser[j], laser[j + 1])
         r = laser[j].r
         rp1 = laser[j + 1].r
-        dist = math.sqrt(r**2 + rp1**2 - 2 * r * rp1 * cos_alpha)
+        squaredDist = r**2 + rp1**2 - 2 * r * rp1 * cos_alpha
+        if squaredDist > 0.001:
+            dist = math.sqrt(squaredDist)
+        else:
+            dist = 0
         c0 = 600
         # TODO: CHECK WITH SAM, is this okay?
         # throws an error if cos_alpha is close to one but not one

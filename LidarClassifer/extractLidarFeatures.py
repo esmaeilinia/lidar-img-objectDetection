@@ -9,9 +9,16 @@ from utility import Scan
 # called to call all of the other feature extraction functions
 # segment is not a segment object but rather a list of the points
 #   x, y in each of the segments
-def extractFeatures(segment):
-	x = [scan.x for scan in segment]
-	y = [scan.y for scan in segment]
+def extractFeatures(segment, train=1):
+	if train:
+		x = [scan.x for scan in segment]
+		y = [scan.y for scan in segment]
+	else:
+		y = [scan.x/400 for scan in segment]
+		x = [scan.y/900 for scan in segment]
+		#print('x', x)
+		#print('y', y)
+
 	# if segment is too short, just return empty array
 	if len(x) < 3:
 		return []
