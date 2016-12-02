@@ -30,7 +30,7 @@ samTestClasses = 'Laser_test_class.txt'
 samTestImages = '../../ISRtest_frames/*.jpg'
 samTestScans = '../../ISRtest_LIDARlog/*.txt'
 
-samusing = True;
+samusing = False;
 if samusing:
     ianTrainPos = samTrainPos
     ianTrainNeg = samTrainNeg
@@ -40,7 +40,7 @@ if samusing:
     ianTestClasses = samTestClasses
     ianTestImages = samTestImages
     ianTestScans = samTestScans
-    
+
 # steps:
 # 1. train
 # 2. test
@@ -55,6 +55,7 @@ class LidarDriver():
         self.lasers = [[], [], [], []]
         # array of 4 arrays of Segment objects
         self.segments = []
+        self.pedestrianSegs = []
 
     # 1. read training segments from Train_pos_segments and Train_neg_segments
     # 2. extract features into self.trainFeatures
@@ -104,9 +105,10 @@ class LidarDriver():
         imgNames = glob.glob(ianTestImages)
         lidarNames = glob.glob(ianTestScans)
         for img, lidar in zip(imgNames, lidarNames):
-            found = False
+            found = 0
             self.segments = []
             self.lasers = [[], [], [], []]
+            self.pedestrianSegs = [[], [], [], []]
             self.readLidarData(lidar)
             # convert lasers into segments
             for laser in self.lasers:
@@ -120,9 +122,11 @@ class LidarDriver():
                     # if value is too high, then predict will throw error
                     if featureVec and all(i < 1e10 for i in featureVec):
                         p = self.lfc.predict(np.array(featureVec).reshape(1, -1))
-                        if p:
-                            found = True
-            if found:
+                        # TODO: sketch
+                        if p and segment.startIdx > 60 and segment.endIdx < 200:
+                            self.pedestrianSegs[segmentNum].append(segment)
+                            found = found + 1
+            if found > 3:
                 self.showImage(img)
 
     def readLidarData(self, lidarFile):
@@ -148,22 +152,22 @@ class LidarDriver():
         Delta = np.array([[-18.592], [-259.84], [-8.2989]])
         Phi = np.array([[0.999, 0.05, 0.0001], [-0.005, 0.998, 0.001],
                  [0.008, -0.018, 0.984]])
-        L = np.array([ [Phi[0][0], Phi[0][1], Phi[0][2], Delta[0]], 
-            [ Phi[2][0], Phi[2][1], Phi[2][2], Delta[2]], 
-            [ Phi[1][0], Phi[1][1], Phi[1][2], Delta[1]], 
+        L = np.array([ [Phi[0][0], Phi[0][1], Phi[0][2], Delta[0]],
+            [ Phi[2][0], Phi[2][1], Phi[2][2], Delta[2]],
+            [ Phi[1][0], Phi[1][1], Phi[1][2], Delta[1]],
             [ 0, 0, 0, 1]])
         # iterate over the lasers
         for laserNum in range(len(self.segments)):
             # iterate over the segments in each laser
             for pointNum in range(len(self.lasers[laserNum])):
                 point = np.array([[-10*self.lasers[laserNum][pointNum].y],
-                    [10*self.lasers[laserNum][pointNum].x], 
+                    [10*self.lasers[laserNum][pointNum].x],
                     [-10*self.lasers[laserNum][pointNum].z], [1]])
                 x_s = np.dot(np.eye(3,4), (np.dot(np.linalg.pinv(L), point)))
                 x_s = x_s / x_s[2]
                 x_s = np.dot(K, x_s)
                 # exclude points outside the image
-                if x_s[0] > 0 and x_s[0] < 640 and x_s[1] > 0 and x_s[1] < 480:    
+                if x_s[0] > 0 and x_s[0] < 640 and x_s[1] > 0 and x_s[1] < 480:
                     plt.plot((x_s[0]), (x_s[1]), 'b+')
 
 
@@ -175,22 +179,23 @@ class LidarDriver():
         Delta = np.array([[-18.592], [-259.84], [-8.2989]])
         Phi = np.array([[0.999, 0.05, 0.0001], [-0.005, 0.998, 0.001],
                  [0.008, -0.018, 0.984]])
-        L = np.array([ [Phi[0][0], Phi[0][1], Phi[0][2], Delta[0]], 
-            [ Phi[2][0], Phi[2][1], Phi[2][2], Delta[2]], 
-            [ Phi[1][0], Phi[1][1], Phi[1][2], Delta[1]], 
+        L = np.array([ [Phi[0][0], Phi[0][1], Phi[0][2], Delta[0]],
+            [ Phi[2][0], Phi[2][1], Phi[2][2], Delta[2]],
+            [ Phi[1][0], Phi[1][1], Phi[1][2], Delta[1]],
             [ 0, 0, 0, 1]])
         # iterate over the lasers
         for laserNum in range(len(self.segments)):
             # iterate over the segments in each laser
-            for segmentNum in self.segments[laserNum]:
+            for segmentNum in self.pedestrianSegs[laserNum]:
+                print(laserNum, segmentNum)
                 # find start and end idx then plot
                 start = segmentNum.startIdx
                 end = segmentNum.endIdx
                 start_point = np.array([[-10*self.lasers[laserNum][start].y],
-                    [10*self.lasers[laserNum][start].x], 
+                    [10*self.lasers[laserNum][start].x],
                     [-10*self.lasers[laserNum][start].z], [1]])
                 end_point = np.array([[-10*self.lasers[laserNum][end].y],
-                   [10*self.lasers[laserNum][end].x], 
+                   [10*self.lasers[laserNum][end].x],
                    [-10*self.lasers[laserNum][end].z], [1]])
                 x_s = np.dot(np.eye(3,4), (np.dot(np.linalg.pinv(L), start_point)))
                 x_e = np.dot(np.eye(3,4), (np.dot(np.linalg.pinv(L), end_point)))
@@ -200,8 +205,9 @@ class LidarDriver():
                 x_e = np.dot(K, x_e)
                 # plot them
                 # make sure the segment is in the range of the image
-                if x_s[0] > 0 and x_e[0] < 640 and x_s[1] > 0 and x_e[1] < 480:    
-                    plt.plot((x_s[0], x_e[0]), (x_s[1], x_e[1]), 'r-')
+                if x_s[0] > 0 and x_e[0] < 640 and x_s[1] > 0 and x_e[1] < 480:
+                    plt.plot((x_s[0], x_e[0]), (x_s[1], x_e[1]), 'ro')
+        print("")
 
     def showImage(self, filename):
         plt.close()
