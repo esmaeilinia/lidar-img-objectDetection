@@ -12,6 +12,11 @@ from segmentData import extractSegments
 from extractLidarFeatures import extractFeatures
 from utility import Scan, Segment
 
+# for people detect.py
+import sys
+from cv import *
+from peopleDetectSample import peopleDetect
+
 # constants
 ianTrainPos = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
 ianTrainNeg = '../../../../../Desktop/442Data/Train_neg_segments/*.txt'
@@ -30,7 +35,7 @@ samTestClasses = 'Laser_test_class.txt'
 samTestImages = '../../ISRtest_frames/*.jpg'
 samTestScans = '../../ISRtest_LIDARlog/*.txt'
 
-samusing = False;
+samusing = True;
 if samusing:
     ianTrainPos = samTrainPos
     ianTrainNeg = samTrainNeg
@@ -240,6 +245,7 @@ class LidarDriver():
         self.showPoints()
         self.showSegments()
         plt.show()
+        peopleDetect(filename)
 
 if __name__ == "__main__":
     ld = LidarDriver()
