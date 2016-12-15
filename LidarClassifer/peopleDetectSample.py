@@ -25,7 +25,6 @@ def peopleDetect(filename):
 
     NamedWindow("people detection demo", 1)
     storage = CreateMemStorage(0)
-    print "here\n"
 
     for name in imglist:
         n = name.strip()
@@ -58,3 +57,7 @@ def peopleDetect(filename):
         if c == ord('q'):
             break
     cv.DestroyAllWindows()
+    return 
+
+#peopleDetect('../../ISRtest_frames/I_13_29_39_0535.jpg')
+

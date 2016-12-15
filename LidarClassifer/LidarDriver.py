@@ -245,7 +245,7 @@ class LidarDriver():
         self.showPoints()
         self.showSegments()
         plt.show()
-        peopleDetect(filename)
+       # peopleDetect(filename)
 
 if __name__ == "__main__":
     ld = LidarDriver()
