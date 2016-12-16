@@ -3,43 +3,39 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: final.aux
 The style file: ieee.bst
 Database file #1: egbib.bib
-Name 1 in "Carlos Premebida, Oswaldo Ludwig, and Urbano Nunes" has a comma at the end for entry journal
-while executing---line 1073 of file ieee.bst
 Warning--to sort, need author or key in dataset
 Warning--to sort, need author or key in sklearn
 Warning--to sort, need author or key in opencv
-Name 1 in "Carlos Premebida, Oswaldo Ludwig, and Urbano Nunes" has a comma at the end for entry journal
-while executing---line 1116 of file ieee.bst
 You've used 5 entries,
             2120 wiz_defined-function locations,
-            522 strings with 4327 characters,
-and the built_in function-call counts, 1237 in all, are:
-= -- 122
-> -- 29
+            522 strings with 4329 characters,
+and the built_in function-call counts, 1201 in all, are:
+= -- 119
+> -- 23
 < -- 1
-+ -- 13
-- -- 8
-* -- 66
-:= -- 175
++ -- 11
+- -- 6
+* -- 62
+:= -- 169
 add.period$ -- 13
 call.type$ -- 5
-change.case$ -- 19
+change.case$ -- 18
 chr.to.int$ -- 0
 cite$ -- 8
 duplicate$ -- 53
 empty$ -- 133
-format.name$ -- 8
-if$ -- 289
+format.name$ -- 6
+if$ -- 282
 int.to.chr$ -- 0
 int.to.str$ -- 5
 missing$ -- 2
 newline$ -- 25
 num.names$ -- 4
-pop$ -- 34
+pop$ -- 33
 preamble$ -- 1
-purify$ -- 14
+purify$ -- 13
 quote$ -- 0
-skip$ -- 48
+skip$ -- 47
 stack$ -- 0
 substring$ -- 66
 swap$ -- 12
@@ -51,4 +47,4 @@ warning$ -- 3
 while$ -- 7
 width$ -- 6
 write$ -- 47
-(There were 2 error messages)
+(There were 3 warnings)
