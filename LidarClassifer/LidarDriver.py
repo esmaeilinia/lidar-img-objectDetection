@@ -18,14 +18,14 @@ from cv import *
 from peopleDetectSample import peopleDetect
 
 # constants
-ianTrainPos = 'Train_pos_segments/*.txt'
-ianTrainNeg = 'Train_neg_segments/*.txt'
-ianTestPos = 'Test_pos_segments/*.txt'
-ianTestNeg = 'Test_neg_segments/*.txt'
-ianTrainClasses = 'Laser_train_class.txt'
-ianTestClasses = 'Laser_test_class.txt'
-ianTestImages = 'SmallTestFrames/*.jpg'
-ianTestScans = 'SmallTestLidar/*.txt'
+TrainPos = 'Train_pos_segments/*.txt'
+TrainNeg = 'Train_neg_segments/*.txt'
+TestPos = 'Test_pos_segments/*.txt'
+TestNeg = 'Test_neg_segments/*.txt'
+TrainClasses = 'Laser_train_class.txt'
+TestClasses = 'Laser_test_class.txt'
+TestImages = 'SmallTestFrames/*.jpg'
+TestScans = 'SmallTestLidar/*.txt'
 
 # steps:
 # 1. train
@@ -50,14 +50,14 @@ class LidarDriver():
     # 4. fit self.lfc with self.trainFeatures and self.trainClasses
     def train(self):
         self.readTrainingSegments()
-        with open(ianTrainClasses) as f:
+        with open(TrainClasses) as f:
             for line in f.readlines():
                 self.trainClasses.append(int(line))
         self.lfc.fit(self.trainFeatures, self.trainClasses)
 
     def readTrainingSegments(self):
-        self.readGlob(ianTrainPos, 1)
-        self.readGlob(ianTrainNeg, 1)
+        self.readGlob(TrainPos, 1)
+        self.readGlob(TrainNeg, 1)
 
     def readGlob(self, globPath, train):
         for filename in glob.glob(globPath):
@@ -74,9 +74,9 @@ class LidarDriver():
                 self.testFeatures.append(extractFeatures(scans))
 
     def testExtractFeatures(self):
-        self.readGlob(ianTestPos, 0)
-        self.readGlob(ianTestNeg, 0)
-        with open(ianTestClasses) as f:
+        self.readGlob(TestPos, 0)
+        self.readGlob(TestNeg, 0)
+        with open(TestClasses) as f:
             for line in f.readlines():
                 self.testClasses.append(int(line))
         print(self.lfc.score(self.testFeatures, self.testClasses))
@@ -115,8 +115,8 @@ class LidarDriver():
     # 5. overlay lidar scans with different colors if segment contains pedestrian or not
     # 6. close image
     def test(self):
-        imgNames = glob.glob(ianTestImages)
-        lidarNames = glob.glob(ianTestScans)
+        imgNames = glob.glob(TestImages)
+        lidarNames = glob.glob(TestScans)
         for img, lidar in zip(imgNames, lidarNames):
             found = False
             self.segments = []
