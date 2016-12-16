@@ -19,7 +19,6 @@ def extractSegments(laser):
         else:
             dist = 0
         c0 = 600
-        # TODO: CHECK WITH SAM, is this okay?
         # throws an error if cos_alpha is close to one but not one
         # probably underflow
         if cos_alpha > 0.999 and cos_alpha < 1.001:

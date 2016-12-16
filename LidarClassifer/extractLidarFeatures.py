@@ -16,8 +16,6 @@ def extractFeatures(segment, train=1):
 	else:
 		y = [scan.x/400 for scan in segment]
 		x = [scan.y/900 for scan in segment]
-		#print('x', x)
-		#print('y', y)
 
 	# if segment is too short, just return empty array
 	if len(x) < 3:
