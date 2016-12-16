@@ -18,35 +18,14 @@ from cv import *
 from peopleDetectSample import peopleDetect
 
 # constants
-ianTrainPos = '../../../../../Desktop/442Data/Train_pos_segments/*.txt'
-ianTrainNeg = '../../../../../Desktop/442Data/Train_neg_segments/*.txt'
-ianTestPos = '../../../../../Desktop/442Data/Test_pos_segments/*.txt'
-ianTestNeg = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
-ianTrainClasses = 'Laser_train_class.txt'
-ianTestClasses = 'Laser_test_class.txt'
-# ianTestImages = '../../../../../Desktop/442Data/SmallSet2Frames/*.jpg'
-# ianTestScans = '../../../../../Desktop/442Data/SmallSet2Lidar/*.txt'
-ianTestImages = '../../../../../Desktop/442Data/SmallTestFrames/*.jpg' #ISRtest_frames/*.jpg'
-ianTestScans = '../../../../../Desktop/442Data/SmallTestLidar/*.txt'  #ISRtest_LIDARlog/*.txt'
-samTrainPos = '../../Laser_train/Train_pos_segments/*.txt'
-samTrainNeg = '../../Laser_train/Train_neg_segments/*.txt'
-samTestPos = '../../Laser_test/Test_pos_segments/*.txt'
-samTestNeg = '../../Laser_test/Test_neg_segments/*.txt'
-samTrainClasses = 'Laser_train_class.txt'
-samTestClasses = 'Laser_test_class.txt'
-samTestImages = '../../ISRtest_frames/*.jpg'
-samTestScans = '../../ISRtest_LIDARlog/*.txt'
-
-samusing = False;
-if samusing:
-    ianTrainPos = samTrainPos
-    ianTrainNeg = samTrainNeg
-    ianTestPos = samTestPos
-    ianTestNeg = samTestNeg
-    ianTrainClasses = samTrainClasses
-    ianTestClasses = samTestClasses
-    ianTestImages = samTestImages
-    ianTestScans = samTestScans
+TrainPos = 'Train_pos_segments/*.txt'
+TrainNeg = 'Train_neg_segments/*.txt'
+TestPos = 'Test_pos_segments/*.txt'
+TestNeg = 'Test_neg_segments/*.txt'
+TrainClasses = 'Laser_train_class.txt'
+TestClasses = 'Laser_test_class.txt'
+TestImages = 'SmallTestFrames/*.jpg'
+TestScans = 'SmallTestLidar/*.txt'
 
 # steps:
 # 1. train
@@ -70,21 +49,15 @@ class LidarDriver():
     # 3. read Laser_train_class into self.trainClasses
     # 4. fit self.lfc with self.trainFeatures and self.trainClasses
     def train(self):
-        #print("training")
         self.readTrainingSegments()
-        with open(ianTrainClasses) as f:
+        with open(TrainClasses) as f:
             for line in f.readlines():
                 self.trainClasses.append(int(line))
         self.lfc.fit(self.trainFeatures, self.trainClasses)
 
     def readTrainingSegments(self):
-        self.ttScanX = []
-        self.ttScanY = []
-        self.ttScanLengths = []
-        self.readGlob(ianTrainPos, 1)
-        self.readGlob(ianTrainNeg, 1)
-        #plt.hist(self.ttScanY)
-        #plt.show()
+        self.readGlob(TrainPos, 1)
+        self.readGlob(TrainNeg, 1)
 
     def readGlob(self, globPath, train):
         for filename in glob.glob(globPath):
@@ -93,20 +66,17 @@ class LidarDriver():
                 Y = map(float, f.readline().split())
             scans = []
             for x,y in zip(X, Y):
-                self.ttScanY.append(y)
-                self.ttScanX.append(x)
                 # r and z don't matter for feature extractions
                 scans.append(Scan(x, y, 0, 0))
-            self.ttScanLengths.append(len(scans))
             if train:
                 self.trainFeatures.append(extractFeatures(scans))
             else:
                 self.testFeatures.append(extractFeatures(scans))
 
     def testExtractFeatures(self):
-        self.readGlob(ianTestPos, 0)
-        self.readGlob(ianTestNeg, 0)
-        with open(ianTestClasses) as f:
+        self.readGlob(TestPos, 0)
+        self.readGlob(TestNeg, 0)
+        with open(TestClasses) as f:
             for line in f.readlines():
                 self.testClasses.append(int(line))
         print(self.lfc.score(self.testFeatures, self.testClasses))
@@ -117,7 +87,6 @@ class LidarDriver():
         # iterate over all the segments
         for laserNum in range(4):
             for segment in range(len(self.pedestrianSegs[laserNum])):
-                print('new seg')
                 l0_start = self.pedestrianSegs[laserNum][segment].startIdx
                 l0_end = self.pedestrianSegs[laserNum][segment].endIdx
                 numSimilar = 0
@@ -130,16 +99,12 @@ class LidarDriver():
                         end = self.pedestrianSegs[otherLaser][segment2].endIdx
                         if abs(start - l0_start) < thd and abs(end - l0_end) < thd:
                             numSimilar += 1
-                print('numSimilar', numSimilar)
 
                 # check if enough similar to identify pedestrian
                 if numSimilar < 1 :
-                    print('added to delete list', self.pedestrianSegs[laserNum][segment])
                     deleteList[laserNum].append(self.pedestrianSegs[laserNum][segment])
         for laserNum in range(4):
-            print('delete from laser num ' +str(laserNum))
             for segment in deleteList[laserNum]:
-                print('delete', laserNum, segment)
                 self.pedestrianSegs[laserNum].remove(segment)
 
     # for each image in ISRtest_frames with its corresponding lidar scan file from ISRtest_LIDARlog
@@ -150,12 +115,8 @@ class LidarDriver():
     # 5. overlay lidar scans with different colors if segment contains pedestrian or not
     # 6. close image
     def test(self):
-        #print("testing")
-        self.ttTestX = []
-        self.ttTestY = []
-        self.ttTestSegLength = []
-        imgNames = glob.glob(ianTestImages)
-        lidarNames = glob.glob(ianTestScans)
+        imgNames = glob.glob(TestImages)
+        lidarNames = glob.glob(TestScans)
         for img, lidar in zip(imgNames, lidarNames):
             found = False
             self.segments = []
@@ -165,13 +126,10 @@ class LidarDriver():
             # convert lasers into segments
             for laser in self.lasers:
                 self.segments.append(extractSegments(laser))
-            # for seg in self.segments:
-            #     for s in seg:
-            #         self.ttTestSegLength.append(s.endIdx-s.startIdx)
             # extract features and classify
             for segmentNum in range(len(self.segments)):
                 for segment in self.segments[segmentNum]:
-                    # TODO: sketch
+                    # ignore segments outside image
                     if segment.startIdx < 60 or segment.endIdx > 250:
                         continue
                     featureVec = extractFeatures(
@@ -180,16 +138,15 @@ class LidarDriver():
                     )
                     # if value is too high, then predict will throw error
                     if featureVec and featureVec[1] > 7 and featureVec[1] < 20 and all(i < 1e10 for i in featureVec):
-                        #print(featureVec)
                         p = self.lfc.predict(np.array(featureVec).reshape(1, -1))
                         if p:
                             self.pedestrianSegs[segmentNum].append(segment)
                             found = True
             if found:
+                # filtering
+                print('running with filtering may get false negatives')
                 self.filterSegments()
                 self.showImage(img)
-        #plt.hist(self.ttTestSegLength)
-        #plt.show()
 
     def readLidarData(self, lidarFile):
         Tetha = np.array([-1.6, -0.8, 0.8, 1.6])*math.pi/180
@@ -202,8 +159,6 @@ class LidarDriver():
                 laserNum = int(data[0])
                 x = float(data[3])
                 y = float(data[4])
-                self.ttTestX.append(x)
-                self.ttTestY.append(y)
                 r = math.sqrt(x*x+y*y)
                 z = r*math.tan(Tetha[laserNum])
                 scan = Scan(x, y, r, z)

@@ -1,14 +1,6 @@
 import sys
 from sklearn.tree import DecisionTreeClassifier
 
-# constants
-#trainDataFilename = 'D-Laser_train_LIPD.txt'
-trainDataFilename = 'trainFeatures.txt'
-trainClassesFilename = 'Laser_train_class.txt'
-#testDataFilename = 'D-Laser_test_LIPD.txt'
-testDataFilename = 'testFeatures.txt'
-testClassesFilename = 'Laser_test_class.txt'
-
 class lidarFeatureClassifer:
     def __init__(self):
         None
@@ -36,19 +28,3 @@ class lidarFeatureClassifer:
             if p == l:
                 correctLabel += 1
         print(str(correctLabel/float(len(yPredict))*100) + '% accuracy')
-
-if __name__ == "__main__":
-    lfc = lidarFeatureClassifer()
-    xTrain = lfc.readDataFile(trainDataFilename)
-    yTrain = lfc.readClassificationFile(trainClassesFilename)
-    xTest = lfc.readDataFile(testDataFilename)
-    yTest = lfc.readClassificationFile(testClassesFilename)
-
-    # train
-    dt = DecisionTreeClassifier()
-    dt.fit(xTrain, yTrain)
-    yPredict = dt.predict(xTest)
-    print(yPredict)
-
-    # check accuracy
-    lfc.analyze(yPredict, yTest)
