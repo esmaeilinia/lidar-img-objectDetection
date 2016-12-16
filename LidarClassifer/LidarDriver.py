@@ -35,7 +35,7 @@ samTestClasses = 'Laser_test_class.txt'
 samTestImages = '../../ISRtest_frames/*.jpg'
 samTestScans = '../../ISRtest_LIDARlog/*.txt'
 
-samusing = True;
+samusing = False;
 if samusing:
     ianTrainPos = samTrainPos
     ianTrainNeg = samTrainNeg
@@ -244,8 +244,8 @@ class LidarDriver():
         plt.imshow(img)
         self.showPoints()
         self.showSegments()
-        plt.show()
         peopleDetect(filename)
+        plt.show()
 
 if __name__ == "__main__":
     ld = LidarDriver()

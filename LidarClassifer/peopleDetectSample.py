@@ -25,7 +25,7 @@ def peopleDetect(filename):
 
     NamedWindow("people detection demo", 1)
     storage = CreateMemStorage(0)
-    print "here\n"
+    #print "here\n"
 
     for name in imglist:
         n = name.strip()
@@ -57,4 +57,4 @@ def peopleDetect(filename):
         c = WaitKey(0)
         if c == ord('q'):
             break
-    cv.DestroyAllWindows()
+    DestroyAllWindows()
