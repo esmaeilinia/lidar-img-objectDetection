@@ -24,8 +24,10 @@ ianTestPos = '../../../../../Desktop/442Data/Test_pos_segments/*.txt'
 ianTestNeg = '../../../../../Desktop/442Data/Test_neg_segments/*.txt'
 ianTrainClasses = 'Laser_train_class.txt'
 ianTestClasses = 'Laser_test_class.txt'
-ianTestImages = '../../../../../Desktop/442Data/SmallSet2Frames/*.jpg' #SmallTestFrames/*.jpg' #ISRtest_frames/*.jpg'
-ianTestScans = '../../../../../Desktop/442Data/SmallSet2Lidar/*.txt' #SmallTestLidar/*.txt'  #ISRtest_LIDARlog/*.txt'
+# ianTestImages = '../../../../../Desktop/442Data/SmallSet2Frames/*.jpg'
+# ianTestScans = '../../../../../Desktop/442Data/SmallSet2Lidar/*.txt'
+ianTestImages = '../../../../../Desktop/442Data/SmallTestFrames/*.jpg' #ISRtest_frames/*.jpg'
+ianTestScans = '../../../../../Desktop/442Data/SmallTestLidar/*.txt'  #ISRtest_LIDARlog/*.txt'
 samTrainPos = '../../Laser_train/Train_pos_segments/*.txt'
 samTrainNeg = '../../Laser_train/Train_neg_segments/*.txt'
 samTestPos = '../../Laser_test/Test_pos_segments/*.txt'
@@ -35,7 +37,7 @@ samTestClasses = 'Laser_test_class.txt'
 samTestImages = '../../ISRtest_frames/*.jpg'
 samTestScans = '../../ISRtest_LIDARlog/*.txt'
 
-samusing = True;
+samusing = False;
 if samusing:
     ianTrainPos = samTrainPos
     ianTrainNeg = samTrainNeg
@@ -111,22 +113,34 @@ class LidarDriver():
 
     def filterSegments(self):
         thd = 10;
+        deleteList = [[], [], [], []]
         # iterate over all the segments
-        for segment in range(len(self.pedestrianSegs[0])):
-            l0_start = self.pedestrianSegs[0][segment].startIdx
-            l0_end = self.pedestrianSegs[0][segment].endIdx
-            numSimilar = 0
-            # iterate over the other lasers
-            for laser in range(1,4):
-                for segment2 in range(len(self.pedestrianSegs[laser])):
-                    start = self.pedestrianSegs[laser][segment2].startIdx
-                    end = self.pedestrianSegs[laser][segment2].endIdx
-                    if abs(start - l0_start) < thd and abs(end - l0_end) < thd:
-                        numSimilar += 1 
+        for laserNum in range(4):
+            for segment in range(len(self.pedestrianSegs[laserNum])):
+                print('new seg')
+                l0_start = self.pedestrianSegs[laserNum][segment].startIdx
+                l0_end = self.pedestrianSegs[laserNum][segment].endIdx
+                numSimilar = 0
+                # iterate over the other lasers
+                for otherLaser in range(4):
+                    if laserNum == otherLaser:
+                        continue
+                    for segment2 in range(len(self.pedestrianSegs[otherLaser])):
+                        start = self.pedestrianSegs[otherLaser][segment2].startIdx
+                        end = self.pedestrianSegs[otherLaser][segment2].endIdx
+                        if abs(start - l0_start) < thd and abs(end - l0_end) < thd:
+                            numSimilar += 1
+                print('numSimilar', numSimilar)
 
-            # check if enough similar to identify pedestrian
-            if numSimilar > 1 :
-                 del self.pedestrianSegs[0][segment] 
+                # check if enough similar to identify pedestrian
+                if numSimilar < 1 :
+                    print('added to delete list', self.pedestrianSegs[laserNum][segment])
+                    deleteList[laserNum].append(self.pedestrianSegs[laserNum][segment])
+        for laserNum in range(4):
+            print('delete from laser num ' +str(laserNum))
+            for segment in deleteList[laserNum]:
+                print('delete', laserNum, segment)
+                self.pedestrianSegs[laserNum].remove(segment)
 
     # for each image in ISRtest_frames with its corresponding lidar scan file from ISRtest_LIDARlog
     # 1. open and display the image
