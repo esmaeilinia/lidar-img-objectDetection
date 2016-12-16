@@ -186,7 +186,23 @@ University of Michigan\\
   pedestrians. A similar set of test data was also provided and our classifier
   achieved an accuracy of 88\%.
 
+  \subsection{Filtering to Remove False Positives}
+  Since our Lidar data consists of four horizontal scans taken at slightly different angles,
+  we should expect that the existance of pedestrians results in several positive segment
+  classifications (up to four) in the same area. Therefore, a simple way to decrease
+  the number of positive classifications is to only positively classify segments if there
+  are at least two other segment classifications in agreement within a small pixel margin.
+  Taking Figure 1 for example, we get a large number of segments on the right side
+  of the image around the two women which would be saved since there are many segments in
+  agreement vertically. However, the other false positives would mostly be ignored
+  since several are mostly isolated (although the white car does appear to have 3 segments
+  in agreement as well).
 
+  We decided to implement this after deciding if each segment was a pedestrian
+  in each individual Lidar scan. If there were two or three additional pedestrian
+  classifications within a threshold $ thd = 10 $ of indices before or after 
+  the classified pedestrian (in the other scans) we determined that 
+  a pedestrian was in fact present.
 
 %------------------------------------------------------------------------
 \section{Experimental Results}
@@ -202,11 +218,6 @@ University of Michigan\\
   positively classified as pedestrians are saved. Their start and end are plotted
   as large green squares.
 
-  \begin{figure}
-    \includegraphics[height=2.8in, width=3.5in]{images/initial_result.png}
-    \caption{ Initial segmentation results. Green squares are identified
-    segments. Red, blue, yellow and green dots are Lidar points.}
-  \end{figure}
 
   \subsection{Example Lidar Output}
   An example of the output of our system can be seen in Figure 1. Our Lidar
@@ -214,11 +225,32 @@ University of Michigan\\
   distinct pedestrians. There are additional people behind these two women
   who are largely occluded and are not identified by our classifier. Unfortunately
   we also get several false positives around the cars on the left side of the road.
+ 
+  \begin{figure}
+    \includegraphics[height=2.8in, width=3.5in]{images/initial_result.png}
+    \caption{ Initial segmentation results. Green squares are identified
+    segments. Red, blue, yellow and green dots are Lidar points.}
+  \end{figure}
+
+
+  \subsection{Example Lidar output after Filtering}  
+  Shown in Figure 2 is the results of our Lidar scan after filtering out segments
+  that were not present in multiple Lidar scans. On the left side of the image 
+  approximately five incorrect Lidar points were removed and in the center of 
+  the image another five incorrect Lidar points were removed. This shows that 
+  our filtering algorithm is clearly working in this case, as it removes many
+  of the false positives. Furthermore, we could tune this algorithm to work
+  even better by adjusting the threshold of how close segments must be, and 
+  accounting for segment length. 
 
   \begin{figure}
-    \includegraphics[height=2.8in, width=3.5in]{images/peopledetect.png}
-    \caption{ Example output of OpenCV's peopledetect \cite{opencv}. }
+    \includegraphics[height=2.8in, width=3.5in]{images/filterSampleResults.png}
+    \caption{ Segmentation results after filtering. Green squares are identified
+    segments. Red, blue, yellow and green dots are Lidar points. Notice the 
+    amount of false positives removed from Figure 1 in the left and center
+    regions of the image.}
   \end{figure}
+
 
   \subsection{Example OpenCV Output}
   An example of the output of OpenCV's peopledetect \cite{opencv} code can be seen in Figure 2.
@@ -229,6 +261,35 @@ University of Michigan\\
   information that can be extrapolated so estimated bounding boxes would have to be
   drawn with some assumption regarding the average height of a pedestrian.
 
+  \begin{figure}
+    \includegraphics[height=2.8in, width=3.5in]{images/peopledetect.png}
+    \caption{ Example output of OpenCV's peopledetect \cite{opencv}. }
+  \end{figure}
+
+
+  \subsection{OpenCV PeopleDetect vs. Lidar Classifier}
+  Here the results of our Lidar classifier versus OpenCV people detect are 
+  presented for one image, see Figure 4 for Lidar Classifier and Figure 5
+  for the OpenCV PeopleDetect \cite{opencv} classifier. In this case it is clear 
+  that the Lidar classifier implemented for this project actually is working 
+  better than OpenCV PeopleDetect \cite{opencv} as it has fewer false positives, 
+  and actually detected the pedestrians present on the sidewalk. In fact, the 
+  Lidar classifier performs very well in this case, as it does not pick up
+  any false positives in the image.
+
+  \begin{figure}
+    \includegraphics[height=2.8in, width=3.5in]{images/sample2lidar.png}
+    \caption{ Pedestrians identified by Lidar classifier and filtering shown
+    by green squares. Notice correct identifications of pedestrians. }
+  \end{figure}
+
+    \begin{figure}
+    \includegraphics[height=2.8in, width=3.5in]{images/sample2cv.png}
+    \caption{ Pedestrians identified by OpenCV PeopleDetect \cite{opencv}. 
+    Notice the two false positives found and that the actual pedestrians are 
+    not detected. }
+  \end{figure}
+
 %------------------------------------------------------------------------
 \section{Future Work}
   As seen in Figure 1 and mentioned above, our Lidar classfication does output a
@@ -236,18 +297,6 @@ University of Michigan\\
   identifying too many pedestrians is preferable over missing one--we believe that
   our results could be improved by minimizing false positives and more closely
   tying image classifications with our Lidar classifications.
-
-  \subsection{Minimizing False Positives}
-  Since our Lidar data consists of four horizontal scans taken at slightly different angles,
-  we should expect that the existance of pedestrians results in several positive segment
-  classifications (up to four) in the same area. Therefore, a simple way to decrease
-  the number of positive classifications is to only positively classify segments if there
-  are at least two other segment classifications in agreement within a small pixel margin.
-  Taking Figure 1 for example, we get a large number of segments on the right side
-  of the image around the two women which would be saved since there are many segments in
-  agreement vertically. However, the other false positives would mostly be ignored
-  since several are mostly isolated (although the white car does appear to have 3 segments
-  in agreement as well).
 
   \subsection{Correlation with Image Data}
   Another addition that could improve our results is making a final prediction based
