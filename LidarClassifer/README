@@ -1,0 +1,5 @@
+run with python LidarDriver.py
+
+It will run a short demo with only 10 images (the full dataset has over 4000 images)
+
+Filtering is currently enabled so there may be more false negatives than otherwise
