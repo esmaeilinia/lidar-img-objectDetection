@@ -25,7 +25,8 @@
 \begin{document}
 
 %%%%%%%%% TITLE
-\title{Pedestrian Detection Using Correlated Lidar and Image Data}
+\title{Pedestrian Detection Using Correlated Lidar and Image Data \\
+      EECS442 Final Project Fall 2016 }
 
 \author{Samuel Rohrer\\
 University of Michigan\\
@@ -47,10 +48,10 @@ University of Michigan\\
 %%%%%%%%% ABSTRACT
 \begin{abstract}
   Recent progress in software and hardware systems will lead to an increase in
-  daily interactions with robots and intelligent systems. As a result of this
-  safety must be at the forefront of the design of autonomous systems,
-  particularly autonomous cars. One of the most important safety aspects of a
-  vehicle is avoiding pedestrians. With this in mind we aim to create a pedestrian
+  daily interactions with robots and intelligent systems. As a result of this,
+  safety must be at the forefront of the design of autonomous systems and
+  particularly autonomous cars. Avoiding pedestrians is one of the most important
+  aspects of autonomous vehicle safety. With this in mind we aim to create a pedestrian
   detection system based off of sensors commonly found on autonomous vehicles.
   We will use correlated Lidar and image data along with algorithms found in
   recent papers to perform pedestrian detection.
@@ -66,23 +67,23 @@ University of Michigan\\
   replaced by robots. Autonomous cars can greatly improve road safety and
   efficiency, as most traffic accidents today are a direct result of human error.
   In order for these intelligent systems to succeed, they must be designed
-  to be much safer than a human driver. Obstacle detection is a crucial aspect
+  to be safer than a human driver. Obstacle detection is a crucial aspect
   of this - especially for autonomous cars which
-  must detect not only other cars, but also road signs, traffic signals, and
-  pedestrians. Beyond just detecting the obstacles, it is often necessary
+  must detect other cars, road signs, traffic signals, and
+  pedestrians. Beyond just detecting obstacles, it is often necessary
   to predict the future motion of moving obstacles such as other vehicles,
   pedestrians, and animals. We aim to focus our efforts on detecting the presence
-  of pedestrians in both Lidar scans and images.
+  of pedestrians in both Lidar (light
+  detection and ranging) scans and images.
 
   The goal of this project is to detect pedestrians in a pre-existing dataset:
   the Laser and Image Pedestrian Detection (LIPD) dataset \cite{dataset},
   which provides correlated Lidar and image data. We aim to identify pedestrians
-  on the road based on Lidar data through segmentation and feature extraction.
+  on the road based on Lidar data by first segmenting the scans and then 
+  extracting features from those segments.
   After feature extraction, we plan to use a trained classifier to determine
   if the obstacle is indeed a pedestrian in the road. Then we plan to extract
-  pedestrian features from the images using OpenCV \cite{opencv}. Finally,
-  based on both classifiers, we make a decision about the presence of a
-  pedestrian in a certain part of the image. We could extend this by
+  pedestrian features from the images using OpenCV \cite{opencv}. We could extend this by
   training a more sophisticated classifier that has the ability to discern the
   difference between cars, pedestrians, and road signs based on both Lidar
   and image data.
@@ -92,18 +93,19 @@ University of Michigan\\
 
   There has been a good deal of work in the area of pedestrian detection for
   mobile robotics. In most systems, the sensor subsystems operate independently
-  of each other. In \cite{journal} the authors use Lidar data to generate regions
-  of interest, then use image analysis to determine the presence of a
-  pedestrian. Some other sensors available on modern autonomous robotics
-  platforms include: radar, ultrasound, camera sensors and Lidar (light
-  detection and ranging). However, each of these sensors comes with their own
-  inherent problems. Cameras can fail in low light situations, and Lidar can
+  of each other. In \cite{journal} the authors used Lidar data to generate regions
+  of interest, then use image analysis to determine whether a pedestrian is
+  present. Some other sensors available on modern autonomous robotics
+  platforms include: radar, ultrasound, cameras, and Lidar. However, 
+  each of these sensors comes with their own
+  inherent problems. Cameras can fail in low light situations and Lidar can
   fail when objects are side by side at the same distance. Both can fail in poor
-  weather, as Lidar can fail if rain or snow causes the light to be reflected
-  too early and camera images can fail if the lens is obstructed by poor weather.
+  weather: Lidar if rain or snow causes the light to be reflected
+  too early and cameras if the lens is obstructed by snow or fog.
 
-  In order to complete this project, we started with a data set \cite{dataset}.
-  Some benefits of this dataset include: correlated Lidar and image data, and
+  In order to complete this project, we started with the LIPD dataset \cite{dataset}.
+  Some benefits of this dataset include: correlated Lidar and image data, pre-segmented
+  Lidar scans, features from segmented Lidar scans, and
   a classification dataset. The correlated datasets were composed of a forward
   facing camera (limited field of view relative to Lidar) and four Lidar scans
   all facing outwards at different angles. The classification dataset had both
@@ -113,18 +115,21 @@ University of Michigan\\
 %------------------------------------------------------------------------
 \section{Technical Work}
 
-  We plan to use both the Lidar data and image data together to identify
+  We plan to use both Lidar data and images to identify
   pedestrians on the road. With Lidar data, we can identify obstacles on the
   road and then analyze the corresponding images that potentially contain
-  pedestrians. There has already been work done in the areas of correlating
+  pedestrians to determine if pedestrians are present. There has already 
+  been work done in the areas of correlating
   Lidar and single image data for the purpose of detecting pedestrians. Most
-  of it follows the same approach that we are outlining and has had succes.
+  of it follows a similar approach to the one we are outlining and has been successful.
   For Lidar object detection, we decided to follow the pipeline outlined
-  in \cite{journal}, and add stages for error correction and correlation with
-  image data. The pipeline is as follows: segmentation, feature
-  extraction, classification, error correction, and correlation with image data.
+  in \cite{journal}, and add stages for error correction and comparison with
+  OpenCV \cite{opencv} pedestrian detection based on image data. 
+  The pipeline is as follows: segmentation, feature
+  extraction, classification, error correction, and comparison with image based
+  pedestrian detection.
 
-  \subsection{Lidar Segmentation}
+  \subsection{Segmentation}
   The pipeline begins with segmentation of the Lidar data
   to find the points where the directionality of the segment changes.
   According to \cite{conf} if it
@@ -175,8 +180,8 @@ University of Michigan\\
     \end{tabular}
   \end{center}
 
-  These features describe the distribution of segment points and were all able to
-  be computed quickly and robustly for all segments greater than three points long.
+  These features describe the distribution of segment points and were all
+  computationally cheap and robust for all segments greater than three points long.
 
   \subsection{Classification}
   For classification we used training data from \cite{dataset} to train a Python
@@ -186,26 +191,27 @@ University of Michigan\\
   pedestrians. A similar set of test data was also provided and our classifier
   achieved an accuracy of 88\%.
 
-  \subsection{Filtering to Remove False Positives}
+  \subsection{Error Correction}
   Since our Lidar data consists of four horizontal scans taken at slightly different angles,
-  we should expect that the existance of pedestrians results in several positive segment
+  we should expect that the existence of pedestrians results in several positive segment
   classifications (up to four) in the same area. Therefore, a simple way to decrease
   the number of positive classifications is to only positively classify segments if there
   are other segment classifications in agreement within a small pixel margin.
   Taking Figure 1 for example, we get a large number of segments on the right side
   of the image around the two women which would be saved since there are many segments in
-  agreement vertically. However, the other false positives would mostly be ignored
-  since several are mostly isolated.
+  agreement vertically. However, some of the other false positives would be ignored
+  since as they are more isolated.
 
-  To do this, we first classify and store all of our positive segments. For each
+  To do this error correction, we first classify and store all of our positive segments. For each
   segment, we then check if the other scans contain positive segments within a threshold
   of the original segment. If there are no other segments that corroborate
-  the original segment's postive classification, then we do not consider it as a positive
+  the positive classification of the original segment, then we do not consider it a positive
   segment and remove it from our output. We have a large degree of flexibility in
   this filtering process as we can both vary the threshold as well as the number of segments
   in agreement. We found that a threshold $ thd = 10 $ and a single additional segment in
   agreement appeared to give good results. Requiring more segments to agree or using a lower
-  threshold results in overfiltering while a larger threshold doesn't filter enough.
+  threshold results in over-filtering whereas a larger threshold would not filter enough
+  false positives out.
 
 %------------------------------------------------------------------------
   \begin{figure}
@@ -215,17 +221,16 @@ University of Michigan\\
   \end{figure}
 \section{Experimental Results}
   We ran our pipeline on raw Lidar scans correlated with image data. After
-  segmenting each of the 4 Lidar scans individually, we pass each segment to the
+  segmenting each of the four Lidar scans individually, we pass each segment to the
   feature extractor. The feature extractor outputs a feature vector composed of
-  the 10 features described above and our classifier is able to make a binary
+  the ten features described above and our classifier is able to make a binary
   classification of whether or not the segment contains a pedestrian. To visually
   display our results, we overlay each of the four Lidar scans over its corresponding
-  image. We color each Lidar scan a different color--yellow, red, green, and blue--
+  image. We color each Lidar scan a different color --yellow, red, green, and blue--
   to distinguish between them. Since the Lidar scan is wider than the image,
   we do not display Lidar points beyond the width of the image. Segments that are
   positively classified as pedestrians are saved. Their start and end are plotted
   as large green squares.
-
 
   \subsection{Example Lidar Output}
   An example of the output of our system can be seen in Figure 1. Our Lidar
@@ -243,6 +248,7 @@ University of Michigan\\
 
 
   \subsection{Example Lidar output after Filtering}
+
   Shown in Figure 2 is another unfiltered image very similar to Figure 1. As you can see,
   there are several false positives on the left side and center regions of of the image.
   These false positives are mostly isolated while the correctly classified pedestrian
@@ -271,8 +277,8 @@ University of Michigan\\
 
 
   \subsection{Example OpenCV Output}
-  An example of the output of OpenCV's peopledetect \cite{opencv} code can be seen in Figure 2.
-  The results are surprisngly similar to our Lidar classifier: it picks up the two
+  An example of the output of OpenCV's PeopleDetect \cite{opencv} code can be seen in Figure 2.
+  The results are surprisingly similar to our Lidar classifier: it picks up the two
   women as well as two extra false positives. The output of OpenCV is more clearly
   indicated than the output of our Lidar scans as they can draw very nice bounding
   boxes around the pedestrians. Unfortunately Lidar scans do not provide any height
@@ -281,19 +287,19 @@ University of Michigan\\
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/peopledetect.png}
-    \caption{ Example output of OpenCV's peopledetect \cite{opencv}. }
+    \caption{ Example output of OpenCV's PeopleDetect \cite{opencv}. }
   \end{figure}
 
 
   \subsection{OpenCV PeopleDetect vs. Lidar Classifier}
   In general both OpenCV's PeopleDetect \cite{opencv} and our Lidar Classifier were
-  able to identify regions with pedestrians. However, our Lidar Classifiered tended to
+  able to identify regions with pedestrians. However, our Lidar Classifier tended to
   make many more false positive classifications than PeopleDetect. There are both
   cases where our Lidar Classifier performs better than PeopleDetect and cases where
   PeopleDetect performs better than our Lidar Classifier. An example of where PeopleDetect
   fails to pick up any pedestrians and makes two false positives can be seen in Figure 6.
 
-  The same image with our Lidar Classifier (Figure 5) does pick up the group of pedestrians but again
+  The same image with our Lidar Classifier, see Figure 5, does pick up the group of pedestrians but again
   makes several false positive classifications. However, this image did not incorporate our
   filtering step mentioned above which likely would have removed most of the false positives.
   In this particular case, our Lidar Classifier does much better than PeopleDetect but this
@@ -303,7 +309,7 @@ University of Michigan\\
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/sample2lidar.png}
-    \caption{ Pedestrians identified by Lidar classifier and filtering shown
+    \caption{ Pedestrians identified by Lidar Classifier and filtering shown
     by green squares. Notice correct identifications of pedestrians. }
   \end{figure}
 
@@ -316,20 +322,20 @@ University of Michigan\\
 
 %------------------------------------------------------------------------
 \section{Future Work}
-  As seen in Figure 1 and mentioned above, our Lidar classfication does output a
+  As seen in Figure 1 and mentioned above, our Lidar classification does output a
   large number of false positives. While this is somewhat better than false negatives--
   identifying too many pedestrians is preferable over missing one--we believe that
   our results could be improved by minimizing false positives and more closely
   tying image classifications with our Lidar classifications.
 
   \subsection{Correlation with Image Data}
-  We could improve our results by making a final prediction by combining
-  the results of both the Lidar classification and image classification. A simple
+  We could improve our results by making a final prediction that combines
+  results of both the Lidar classification and image classification. A simple
   set intersection of the general areas where the positive Lidar segments and OpenCV
   bounding boxes are in agreement could cut down on the extra classifications coming from
-  both our Lidar Classifier as well as OpenCV's PeopleDetect. An example of a potential
+  both our Lidar Classifier as well as OpenCV's PeopleDetect. See Figure 7 for an example of a potential
   output of such a system that combines the Lidar Classifier output from Figure 1
-  and the PeopleDetect output from Figure 4 can be seen in Figure 7. As you can see,
+  and the PeopleDetect output from Figure 4. As you can see
   the simple set intersection removes the false positives stemming from both OpenCV and
   our Lidar Classifier.
 
@@ -342,25 +348,26 @@ University of Michigan\\
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/futureWork.png}
-    \caption{ Example output of potential system that combines Lidar with peopledetect.
-    Bounding boxes are handdrawn. }
+    \caption{ Example output of potential system that combines a Lidar Classifier 
+    with OpenCV PeopleDetect \cite{opencv}. Bounding boxes are hand-drawn. }
   \end{figure}
 
 %------------------------------------------------------------------------
 \section{Conclusion}
-  We were able to successfully segment raw Lidar scans, extract
-  features, and make a classification. Unfortunately the final dataset that
-  we test our system on provides labels as a series of bounding boxes on the
+  We were able to segment raw Lidar scans, extract
+  features, and make a successful pedestrian classification. 
+  Unfortunately the final dataset that
+  we tested our system on provides labels as a series of bounding boxes on the
   image itself. As such, we did not have labels for individual segments and do
-  not have an exact accuracy for our classifier. However, our intial examination
-  of our results does look fairly positive: we generally do pick up pedestrians
+  not have an exact accuracy for our classifier. However, our initial examination
+  of results does look fairly positive: we generally do pick up pedestrians
   but also pick up other objects on the side of the road such as cars.
 
-  Addition of the OpenCV peopledetect code provides additional interesting
-  results. Similarly to our Lidar classifier, OpenCV does generally detect
+  Addition of the OpenCV PeopleDetect \cite{opencv} code provides additional interesting
+  results. Similarly to our Lidar Classifier, OpenCV does generally detect
   pedestrians but also provides incorrect bounding boxes around cars and buildings.
   These incorrect classifications generally do not coincide with our Lidar
-  classifications and thereby validates our intial beliefs that a system combining
+  classifications and thereby validates our initial beliefs that a system combining
   both Lidar and Image classifications can perform better than either individually.
 
 %------------------------------------------------------------------------
