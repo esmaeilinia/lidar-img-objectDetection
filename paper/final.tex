@@ -49,7 +49,7 @@ University of Michigan\\
   Recent progress in software and hardware systems will lead to an increase in
   daily interactions with robots and intelligent systems. As a result of this
   safety must be at the forefront of the design of autonomous systems,
-  particularly autonomous cars. One of the most important safety aspects of a 
+  particularly autonomous cars. One of the most important safety aspects of a
   vehicle is avoiding pedestrians. With this in mind we aim to create a pedestrian
   detection system based off of sensors commonly found on autonomous vehicles.
   We will use correlated Lidar and image data along with algorithms found in
@@ -66,22 +66,22 @@ University of Michigan\\
   replaced by robots. Autonomous cars can greatly improve road safety and
   efficiency, as most traffic accidents today are a direct result of human error.
   In order for these intelligent systems to succeed, they must be designed
-  to be much safer than a human driver. Obstacle detection is a crucial aspect 
+  to be much safer than a human driver. Obstacle detection is a crucial aspect
   of this - especially for autonomous cars which
   must detect not only other cars, but also road signs, traffic signals, and
   pedestrians. Beyond just detecting the obstacles, it is often necessary
-  to predict the future motion of moving obstacles such as other vehicles, 
+  to predict the future motion of moving obstacles such as other vehicles,
   pedestrians, and animals. We aim to focus our efforts on detecting the presence
   of pedestrians in both Lidar scans and images.
 
   The goal of this project is to detect pedestrians in a pre-existing dataset:
-  the Laser and Image Pedestrian Detection (LIPD) dataset \cite{dataset}, 
-  which provides correlated Lidar and image data. We aim to identify pedestrians 
+  the Laser and Image Pedestrian Detection (LIPD) dataset \cite{dataset},
+  which provides correlated Lidar and image data. We aim to identify pedestrians
   on the road based on Lidar data through segmentation and feature extraction.
   After feature extraction, we plan to use a trained classifier to determine
-  if the obstacle is indeed a pedestrian in the road. Then we plan to extract 
-  pedestrian features from the images using OpenCV \cite{opencv}. Finally, 
-  based on both classifiers, we make a decision about the presence of a 
+  if the obstacle is indeed a pedestrian in the road. Then we plan to extract
+  pedestrian features from the images using OpenCV \cite{opencv}. Finally,
+  based on both classifiers, we make a decision about the presence of a
   pedestrian in a certain part of the image. We could extend this by
   training a more sophisticated classifier that has the ability to discern the
   difference between cars, pedestrians, and road signs based on both Lidar
@@ -191,20 +191,28 @@ University of Michigan\\
   we should expect that the existance of pedestrians results in several positive segment
   classifications (up to four) in the same area. Therefore, a simple way to decrease
   the number of positive classifications is to only positively classify segments if there
-  are at least two other segment classifications in agreement within a small pixel margin.
+  are other segment classifications in agreement within a small pixel margin.
   Taking Figure 1 for example, we get a large number of segments on the right side
   of the image around the two women which would be saved since there are many segments in
   agreement vertically. However, the other false positives would mostly be ignored
-  since several are mostly isolated (although the white car does appear to have 3 segments
-  in agreement as well).
+  since several are mostly isolated.
 
-  We decided to implement this after deciding if each segment was a pedestrian
-  in each individual Lidar scan. If there were two or three additional pedestrian
-  classifications within a threshold $ thd = 10 $ of indices before or after 
-  the classified pedestrian (in the other scans) we determined that 
-  a pedestrian was in fact present.
+  To do this, we first classify and store all of our positive segments. For each
+  segment, we then check if the other scans contain positive segments within a threshold
+  of the original segment. If there are no other segments that corroborate
+  the original segment's postive classification, then we do not consider it as a positive
+  segment and remove it from our output. We have a large degree of flexibility in
+  this filtering process as we can both vary the threshold as well as the number of segments
+  in agreement. We found that a threshold $ thd = 10 $ and a single additional segment in
+  agreement appeared to give good results. Requiring more segments to agree or using a lower
+  threshold results in overfiltering while a larger threshold doesn't filter enough.
 
 %------------------------------------------------------------------------
+  \begin{figure}
+    \includegraphics[height=2.8in, width=3.5in]{images/initial_result.png}
+    \caption{ Initial segmentation results. Green squares are identified
+    segments. Red, blue, yellow and green dots are Lidar points.}
+  \end{figure}
 \section{Experimental Results}
   We ran our pipeline on raw Lidar scans correlated with image data. After
   segmenting each of the 4 Lidar scans individually, we pass each segment to the
@@ -225,29 +233,39 @@ University of Michigan\\
   distinct pedestrians. There are additional people behind these two women
   who are largely occluded and are not identified by our classifier. Unfortunately
   we also get several false positives around the cars on the left side of the road.
- 
+
   \begin{figure}
-    \includegraphics[height=2.8in, width=3.5in]{images/initial_result.png}
-    \caption{ Initial segmentation results. Green squares are identified
-    segments. Red, blue, yellow and green dots are Lidar points.}
+    \includegraphics[height=2.8in, width=3.5in]{images/filterSampleOriginal.png}
+    \caption{ Unfiltered Example. Green squares are identified
+    segments. Red, blue, yellow and green dots are Lidar points. Notice the
+    amount of false positives in the left and center regions of the image.}
   \end{figure}
 
 
-  \subsection{Example Lidar output after Filtering}  
-  Shown in Figure 2 is the results of our Lidar scan after filtering out segments
-  that were not present in multiple Lidar scans. On the left side of the image 
-  approximately five incorrect Lidar points were removed and in the center of 
-  the image another five incorrect Lidar points were removed. This shows that 
+  \subsection{Example Lidar output after Filtering}
+  Shown in Figure 2 is another unfiltered image very similar to Figure 1. As you can see,
+  there are several false positives on the left side and center regions of of the image.
+  These false positives are mostly isolated while the correctly classified pedestrian
+  region has many segments in agreement.
+
+  Figure 3 is the result of our Lidar scan after filtering out segments
+  that were not present in multiple Lidar scans. On the left side of the image
+  approximately five incorrect Lidar points were removed and in the center of
+  the image another five incorrect Lidar points were removed. This demonstrates that
   our filtering algorithm is clearly working in this case, as it removes many
-  of the false positives. Furthermore, we could tune this algorithm to work
-  even better by adjusting the threshold of how close segments must be, and 
-  accounting for segment length. 
+  of the false positives. Furthermore, we can tune this algorithm to work
+  even better by adjusting the threshold of how close segments must be,
+  accounting for segment length, and modifying the number of segments required for
+  agreement. For example, Figure 3 still contains false positives even after filtering:
+  there is a small cluster of green squares on the tip of the black car on the left
+  side. Raising the number of segments necessary for a positive classification from two
+  to three would likely fix this issue (but may cause false negatives in other examples).
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/filterSampleResults.png}
     \caption{ Segmentation results after filtering. Green squares are identified
-    segments. Red, blue, yellow and green dots are Lidar points. Notice the 
-    amount of false positives removed from Figure 1 in the left and center
+    segments. Red, blue, yellow and green dots are Lidar points. Notice the
+    amount of false positives removed from Figure 2 in the left and center
     regions of the image.}
   \end{figure}
 
@@ -268,14 +286,20 @@ University of Michigan\\
 
 
   \subsection{OpenCV PeopleDetect vs. Lidar Classifier}
-  Here the results of our Lidar classifier versus OpenCV people detect are 
-  presented for one image, see Figure 4 for Lidar Classifier and Figure 5
-  for the OpenCV PeopleDetect \cite{opencv} classifier. In this case it is clear 
-  that the Lidar classifier implemented for this project actually is working 
-  better than OpenCV PeopleDetect \cite{opencv} as it has fewer false positives, 
-  and actually detected the pedestrians present on the sidewalk. In fact, the 
-  Lidar classifier performs very well in this case, as it does not pick up
-  any false positives in the image.
+  In general both OpenCV's PeopleDetect \cite{opencv} and our Lidar Classifier were
+  able to identify regions with pedestrians. However, our Lidar Classifiered tended to
+  make many more false positive classifications than PeopleDetect. There are both
+  cases where our Lidar Classifier performs better than PeopleDetect and cases where
+  PeopleDetect performs better than our Lidar Classifier. An example of where PeopleDetect
+  fails to pick up any pedestrians and makes two false positives can be seen in Figure 6.
+
+  The same image with our Lidar Classifier (Figure 5) does pick up the group of pedestrians but again
+  makes several false positive classifications. However, this image did not incorporate our
+  filtering step mentioned above which likely would have removed most of the false positives.
+  In this particular case, our Lidar Classifier does much better than PeopleDetect but this
+  demonstrates the difficulty in merging Lidar and Image classifications. There will be cases
+  where the classifications are in agreement but there will also be cases like this where there
+  is no overlap.
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/sample2lidar.png}
@@ -285,8 +309,8 @@ University of Michigan\\
 
     \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/sample2cv.png}
-    \caption{ Pedestrians identified by OpenCV PeopleDetect \cite{opencv}. 
-    Notice the two false positives found and that the actual pedestrians are 
+    \caption{ Pedestrians identified by OpenCV PeopleDetect \cite{opencv}.
+    Notice the two false positives found and that the actual pedestrians are
     not detected. }
   \end{figure}
 
@@ -299,12 +323,22 @@ University of Michigan\\
   tying image classifications with our Lidar classifications.
 
   \subsection{Correlation with Image Data}
-  Another addition that could improve our results is making a final prediction based
-  on the results of both the Lidar classification and image classification. A simple
+  We could improve our results by making a final prediction by combining
+  the results of both the Lidar classification and image classification. A simple
   set intersection of the general areas where the positive Lidar segments and OpenCV
   bounding boxes are in agreement could cut down on the extra classifications coming from
-  both our Lidar classifier as well as OpenCV's peopledetect. An example of a potential
-  output of such a system can be seen in Figure 3.
+  both our Lidar Classifier as well as OpenCV's PeopleDetect. An example of a potential
+  output of such a system that combines the Lidar Classifier output from Figure 1
+  and the PeopleDetect output from Figure 4 can be seen in Figure 7. As you can see,
+  the simple set intersection removes the false positives stemming from both OpenCV and
+  our Lidar Classifier.
+
+  However, there are many difficulties in combining the two systems once you look
+  beyond just this image. As mentioned above, it is unlikely the systems will always
+  agree as seen with Figures 5 and 6. A simple set intersection could well likely result
+  in no positive classifications and many false negatives which would be disastrous
+  for an autonomous vehicle. A safer choice would be a set union between the two as
+  false negatives are far worse than false positives.
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/futureWork.png}
