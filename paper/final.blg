@@ -4,8 +4,8 @@ The top-level auxiliary file: final.aux
 The style file: ieee.bst
 Database file #1: egbib.bib
 Warning--to sort, need author or key in dataset
-Warning--to sort, need author or key in sklearn
 Warning--to sort, need author or key in opencv
+Warning--to sort, need author or key in sklearn
 You've used 5 entries,
             2120 wiz_defined-function locations,
             522 strings with 4329 characters,
