@@ -35,7 +35,7 @@ samTestClasses = 'Laser_test_class.txt'
 samTestImages = '../../ISRtest_frames/*.jpg'
 samTestScans = '../../ISRtest_LIDARlog/*.txt'
 
-samusing = False;
+samusing = True;
 if samusing:
     ianTrainPos = samTrainPos
     ianTrainNeg = samTrainNeg
@@ -109,6 +109,25 @@ class LidarDriver():
                 self.testClasses.append(int(line))
         print(self.lfc.score(self.testFeatures, self.testClasses))
 
+    def filterSegments(self):
+        thd = 10;
+        # iterate over all the segments
+        for segment in range(len(self.pedestrianSegs[0])):
+            l0_start = self.pedestrianSegs[0][segment].startIdx
+            l0_end = self.pedestrianSegs[0][segment].endIdx
+            numSimilar = 0
+            # iterate over the other lasers
+            for laser in range(1,4):
+                for segment2 in range(len(self.pedestrianSegs[laser])):
+                    start = self.pedestrianSegs[laser][segment2].startIdx
+                    end = self.pedestrianSegs[laser][segment2].endIdx
+                    if abs(start - l0_start) < thd and abs(end - l0_end) < thd:
+                        numSimilar += 1 
+
+            # check if enough similar to identify pedestrian
+            if numSimilar > 1 :
+                 del self.pedestrianSegs[0][segment] 
+
     # for each image in ISRtest_frames with its corresponding lidar scan file from ISRtest_LIDARlog
     # 1. open and display the image
     # 2. read the lidar file into self.laser
@@ -153,6 +172,7 @@ class LidarDriver():
                             self.pedestrianSegs[segmentNum].append(segment)
                             found = True
             if found:
+                self.filterSegments()
                 self.showImage(img)
         #plt.hist(self.ttTestSegLength)
         #plt.show()
