@@ -1,0 +1,27 @@
+\begin{thebibliography}{1}\itemsep=-1pt
+
+\bibitem{dataset}
+Laser and image pedestrian detection dataset.
+\newblock \url{http://home.isr.uc.pt/~cpremebida/dataset}.
+
+\bibitem{opencv}
+Open source computer vision.
+\newblock \url{http://opencv.org}.
+
+\bibitem{sklearn}
+Python scikit-learn.
+\newblock \url{http://scikit-learn.org/stable/index.html}.
+
+\bibitem{journal}
+O.~L. Carlos~Premebida and U.~Nunes.
+\newblock Lidar and vision-based pedestrian detection system.
+\newblock {\em Journal of Field Robotics}, 26(9):696--711, 2009.
+
+\bibitem{conf}
+C.~Premebida and U.~Nunes.
+\newblock Segmentation and geometric primitives extraction from 2d laser range
+  data for mobile robot applications.
+\newblock In {\em Proceedings of the 5th National Festival of Robotics
+  Scientific Meeting}, pages 17--25, Coimbra, Portugal, 2005. ROBOTICA.
+
+\end{thebibliography}

@@ -25,7 +25,6 @@ def peopleDetect(filename):
 
     NamedWindow("people detection demo", 1)
     storage = CreateMemStorage(0)
-    #print "here\n"
 
     for name in imglist:
         n = name.strip()
