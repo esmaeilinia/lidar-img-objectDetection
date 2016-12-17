@@ -79,7 +79,7 @@ University of Michigan\\
   The goal of this project is to detect pedestrians in a pre-existing dataset:
   the Laser and Image Pedestrian Detection (LIPD) dataset \cite{dataset},
   which provides correlated Lidar and image data. We aim to identify pedestrians
-  on the road based on Lidar data by first segmenting the scans and then 
+  on the road based on Lidar data by first segmenting the scans and then
   extracting features from those segments.
   After feature extraction, we plan to use a trained classifier to determine
   if the obstacle is indeed a pedestrian in the road. Then we plan to extract
@@ -96,7 +96,7 @@ University of Michigan\\
   of each other. In \cite{journal} the authors used Lidar data to generate regions
   of interest, then use image analysis to determine whether a pedestrian is
   present. Some other sensors available on modern autonomous robotics
-  platforms include: radar, ultrasound, cameras, and Lidar. However, 
+  platforms include: radar, ultrasound, cameras, and Lidar. However,
   each of these sensors comes with their own
   inherent problems. Cameras can fail in low light situations and Lidar can
   fail when objects are side by side at the same distance. Both can fail in poor
@@ -118,13 +118,13 @@ University of Michigan\\
   We plan to use both Lidar data and images to identify
   pedestrians on the road. With Lidar data, we can identify obstacles on the
   road and then analyze the corresponding images that potentially contain
-  pedestrians to determine if pedestrians are present. There has already 
+  pedestrians to determine if pedestrians are present. There has already
   been work done in the areas of correlating
   Lidar and single image data for the purpose of detecting pedestrians. Most
   of it follows a similar approach to the one we are outlining and has been successful.
   For Lidar object detection, we decided to follow the pipeline outlined
   in \cite{journal}, and add stages for error correction and comparison with
-  OpenCV \cite{opencv} pedestrian detection based on image data. 
+  OpenCV \cite{opencv} pedestrian detection based on image data.
   The pipeline is as follows: segmentation, feature
   extraction, classification, error correction, and comparison with image based
   pedestrian detection.
@@ -277,7 +277,7 @@ University of Michigan\\
 
 
   \subsection{Example OpenCV Output}
-  An example of the output of OpenCV's PeopleDetect \cite{opencv} code can be seen in Figure 2.
+  An example of the output of OpenCV's PeopleDetect \cite{opencv} code can be seen in Figure 4.
   The results are surprisingly similar to our Lidar classifier: it picks up the two
   women as well as two extra false positives. The output of OpenCV is more clearly
   indicated than the output of our Lidar scans as they can draw very nice bounding
@@ -348,14 +348,14 @@ University of Michigan\\
 
   \begin{figure}
     \includegraphics[height=2.8in, width=3.5in]{images/futureWork.png}
-    \caption{ Example output of potential system that combines a Lidar Classifier 
+    \caption{ Example output of potential system that combines a Lidar Classifier
     with OpenCV PeopleDetect \cite{opencv}. Bounding boxes are hand-drawn. }
   \end{figure}
 
 %------------------------------------------------------------------------
 \section{Conclusion}
   We were able to segment raw Lidar scans, extract
-  features, and make a successful pedestrian classification. 
+  features, and make a successful pedestrian classification.
   Unfortunately the final dataset that
   we tested our system on provides labels as a series of bounding boxes on the
   image itself. As such, we did not have labels for individual segments and do
